@@ -1,0 +1,386 @@
+/* took out grid element because a grid was not needed for the first two elements 
+on page */
+.grid-container {
+    /* display: grid; */
+    /* grid-template-columns: auto auto; */
+    /* grid-template-rows: auto auto; */
+    gap: 10px;
+    padding: 30px;
+    /* background-color: aqua; */
+  } 
+  
+  .grid-item { 
+    padding: 20px;
+    text-align: left;
+  }
+  
+
+  .project-title-container {
+    grid-column: 1 / -1; 
+  }
+  
+  .project-title {
+    grid-column: 1 / -1;
+    margin: 1%;
+  }
+
+  #project-title-input{
+    width: 98%;
+    border-radius: 10px;
+    background-color: #cfddff;
+    font-size: 40px;
+
+  }
+
+  #message {
+    width: 100%;
+    grid-column: 1 / -1;
+    background-color: #cfddff;
+    border-radius: 10px;
+    font-size: 40px;
+  }
+
+  .description-container {
+    grid-column: 1 / -1;
+  }
+  
+  #description {
+    width: 100%;
+    grid-column: 1 / -1;
+    border-radius: 10px;
+    background-color: #cfddff;
+    font-size: 40px;
+  }
+  
+  .image-container {
+    background-color: rgb(216, 216, 249); 
+    width: 46%;
+    grid-column: 1 / -1;
+    border-radius: 10px;
+    margin-right: 32px;
+    margin-left: 20px; 
+  }
+
+  .image-upload {
+    /* display: flex; */
+    margin-top: 20px;
+    /* align-items: center; */
+  }
+  .uploadImage{
+    flex: 0 0 auto; /* Don't allow image preview to grow or shrink */
+      margin-right: 10px;
+  }
+  .image-upload input[type="file"] {
+      /* display: block; */
+      margin-bottom: 10px;
+      /* width: 60%;  */
+      max-width: 100%; 
+      /* background-color: red;  */
+  }
+
+  .image-upload textarea {
+    width: 100%;
+    resize: vertical;
+    font-size:20px;
+  }
+
+  .video-container { 
+    background-color: rgb(216, 216, 249); 
+    width: 46%;
+    grid-column: 1 / -1;
+    border-radius: 10px;
+    margin-right: 30px; 
+    margin-left: 10px; 
+    /* margin: 10px 0px 0px 0px;  */
+  }
+
+  .video-upload{
+    margin-top: 20px; 
+    grid-column: 1 / -1;
+  }
+  .video-upload input[type="url"] {
+    /* display: block; */
+    margin-bottom: 10px;
+    width: 500px; 
+    max-width: 100%; 
+}
+  .video-upload textarea {
+    width: 100%;
+    resize: vertical;
+    font-size:20px;
+}
+
+  .submit-button{
+    background-color: #1434a4;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    border-radius: 20px;
+    color: white;
+    margin: auto;
+    border: none;
+    font-size: 30px;
+  }
+
+  .submit {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0; /* Adjust vertical margin as needed */
+    grid-column: 1 / -1;
+  }
+
+ .alignment{
+  width: 100%; 
+  margin-left: 10px;
+  display: flex;
+
+ }
+
+ .center-headings{
+  margin-top: 50px; 
+  text-align: center; 
+  
+ }
+
+ .supplies-container {
+  background-color: rgb(216, 216, 249); 
+ /* Set the background color of the container */
+  padding: 20px; /* Add padding to the container */
+  border-radius: 10px; /* Optional: Add rounded corners to the container */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle box shadow */
+
+  
+ }
+
+ .input-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px; 
+}
+
+input[type="number"] {
+  width: 50px; /* Adjust the width as needed */
+  margin-right: 10px; /* Adjust the margin as needed */
+  font-size: 30px; 
+}
+
+#input {
+  width: 600px; /* Adjust the width as needed */
+  resize: vertical; /* Allow vertical resizing if needed */
+  max-height: 100px; 
+  font-size: 30px; 
+}
+ .input-container button {
+  background-color: #1434a4;
+  color: white;
+  border: none;
+  padding: 4px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 50px;
+  margin-left: 10px; 
+  } 
+
+  .input-container button:hover {
+  background-color: #0e267d;
+  }
+
+  .container_two {
+    margin-left: 30px; /* Center the container horizontally */
+    margin-right: 30px; 
+    background-color: rgb(216, 216, 249);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* background-color: greenyellow; */
+}
+
+.dropdown-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    flex-wrap: wrap;
+    /* background-color: red; */
+}
+/* .alignGrouping{
+  background-color: greenyellow;
+} */
+.dropdownBox{
+  display: flex;
+  flex-direction: column;
+  margin-right: 20px;
+  /* width: 50px; */
+}
+.dropdown {
+    /* padding: 5px; */
+    font-size: 30px;
+    /* margin: 20px; Adjust the margin as needed */
+    /* Add any other styles for the dropdown */
+    width: 305px;
+    height: 100px;
+    margin-top: 0;
+}
+
+.dropdown2 { /* Updated class name to match the HTML */
+  width: 200px;
+  height: 50px;
+  font-size: 30px;
+}
+
+.action-button {
+  background-color: #1434a4;
+  color: white;
+  border: none;
+  padding: 4px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  height: 50px;
+  margin-left: 20px;
+}
+
+.dropdown-container button:hover {
+  background-color: #0e267d;
+  }
+
+  .container_three {
+    margin-left: 30px; /* Center the container horizontally */
+    margin-right: 30px; 
+    background-color: rgb(216, 216, 249);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-containertwo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    flex-wrap: wrap;
+}
+
+.dropdown3 {
+    padding: 5px;
+    font-size: 30px;
+    margin: 20px; /* Adjust the margin as needed */
+    /* Add any other styles for the dropdown */
+    width: 450px;
+    height: 50px
+}
+
+  @media (max-width: 600px) {
+    .dropdown, .action-button {
+        flex: 100%; /* Make them full width on smaller screens */
+    }
+}
+
+.table-style {
+  margin: 10px auto 10px auto; /* Add some top and bottom margin, and set left/right margin to auto */
+  width: 70%; /* Adjust the width as needed */
+  text-align: center; /* Center the text horizontally */
+  font-size: 30px; 
+}
+
+.table-style table {
+  width: 100%;
+  
+}
+
+.table-style th, .table-style td {
+  padding: 10px; /* Adjust padding as needed */
+  border-width: 3px;
+  border-color: #1434a4;
+
+}
+.table-style td{
+  position: relative;
+}
+.deleteButton{
+  /* display: flex;
+  justify-content: flex-end; */
+  position: absolute;
+    top: 12px;
+    right: 20px;
+  width: 20px;
+}
+.deleteButton button{
+  background-color: transparent;
+  /* background-color: rgb(173, 216, 230, 0.2); */
+  /* border: 2px solid lightblue; */
+    /* border-radius: 10px; */
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+.selected-tags {
+  font-size: 40px; /* Adjust the font size as needed */
+}
+
+.tag {
+  margin-right: 30px; /* Add margin between tags */
+  display: inline-block; /* Make tags appear in a line */
+  background-color:  #1434a4;
+  color:white; 
+  padding: 4px 16px;
+  border-radius: 5px;
+}
+
+.remove-tag {
+  cursor: pointer;
+  font-size: 50px; /* Adjust the font size as needed */
+  color: red; /* Change color or styling as needed */
+}
+
+.imageTextDiv{
+  width: 50%;
+}
+.textarea-design{
+  /* width: 10%; */
+  background-color: greenyellow;
+}
+/* .input-text {
+  width: 50%;
+  /* Ensure the input takes up the full width */
+  /* box-sizing: border-box; */
+  /* Include padding and border in the input's total width */
+  /* overflow: hidden; */
+  /* Hide overflowing text */
+  /* white-space: nowrap; */
+  /* Prevent text from wrapping */
+  /* text-overflow: ellipsis; */
+  /* Show ellipsis (...) when text overflows */
+/* } */ */
+/* Header.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Drop shadow */
+}
+
+.popup button {
+  margin-top: 10px;
+}
+
+/* Additional styling for your header elements can be added here */
+
+.incompleteForm{
+  background-color: rgb(245, 197, 197);
+  color: black;
+  margin: 3% 3% 0% 3%;
+  padding: 1%;
+}

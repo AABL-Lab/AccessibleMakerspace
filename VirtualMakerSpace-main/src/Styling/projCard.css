@@ -1,0 +1,120 @@
+/* styling the project cards */
+.projCard {
+  width: 20vw;
+  /* height: fit-content; */
+  height: 370px; /*Set a fixed height for the project cards*/
+  margin: 25px;
+  margin-right: 0px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 8px 8px 8px rgba(20, 52, 164, 0.3);
+  border: solid rgba(20, 52, 164, 0.3) 1px;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.userCard{
+  width: 20vw;
+  /* height: fit-content; */
+  height: 340px; /*Set a fixed height for the project cards*/
+  margin: 25px;
+  margin-right: 0px;
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 8px 8px 8px rgba(20, 52, 164, 0.3);
+  border: solid rgba(20, 52, 164, 0.3) 1px;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.innerBox{ 
+  flex: 1;
+  display: flex;
+  transition: top 0.3s ease;
+  box-shadow: none;
+  flex-direction: column;
+  padding: 5%;
+}
+
+.thumbnail {
+  width: 100%; /* Ensure the thumbnail takes up the full width of its container */
+  height: 200px; /* Set a fixed height for the thumbnail */
+  object-fit: cover; /* Crop the image to cover the entire thumbnail container */
+  overflow: hidden; /* Hide any parts of the image that exceed the thumbnail dimensions */
+}
+/* styling layout of cards on projects page */
+.cardLayout{
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  gap: 5px;
+  
+}
+
+.userCardLayout{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 2px;
+  padding-right: 20px;
+}
+
+.controls {
+  width: 100%;
+  display: flex;
+  justify-content: space-between; 
+  margin-bottom: 5px;
+}
+
+.editLink {
+  border-radius: 20px; /* Adjust the value to make the button more or less pill-shaped */
+  padding: 5px 20px; /* Adjust padding as needed */
+  color: white;
+  text-decoration: none; 
+  background-color: #1434a4;
+  border: none;
+}
+.deleteLink {
+  border-radius: 20px; /* Adjust the value to make the button more or less pill-shaped */
+  padding: 5px 10px; /* Adjust padding as needed */
+  background-color: #1434a4; /* Red color for delete button */
+  color: white;
+  text-decoration: none;
+  border: none;
+}
+
+.deleteLink:hover {
+  background-color: #8b0000; /* Dark red color on hover */
+}
+
+.bioContainer {
+  max-height: 100px; /* Set the maximum height for the bio container */
+  overflow-y: auto; /* Enable vertical scroll if the content exceeds the height */
+  margin: 10px 0; /* Adjust margin as needed */
+}
+
+.bio {
+  margin: 0; /* Reset margin */
+  padding: 0; /* Reset padding */
+}
+
+
+@media screen and (max-width: 1000px) {
+  .cardLayout {
+    grid-template-columns: auto auto auto;
+  }
+  .projCard {
+    width: 25vw;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .cardLayout {
+    grid-template-columns: auto auto;
+  }
+  .projCard {
+    width: 40vw;
+  }
+}

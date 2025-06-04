@@ -1,0 +1,80 @@
+.footer {
+  margin-top: 3%;
+  background: #1434a4;
+  color: white;
+  display: grid; 
+  grid-template-columns: 50% 50%;
+  padding: 2% 5%;
+}
+
+.footer a{
+  color: white;
+}
+/* Potentially change code */
+.about-company {
+  i {
+    font-size: 25px;
+  }
+
+  a {
+    color: white;
+    transition: color .2s;
+
+    &:hover {
+      color: white
+    }
+  }
+}
+
+.row{
+  font-size: 150%;
+  align-items: center;
+  padding: 0% 10%;
+
+}
+
+.contact{
+  font-size: 40px;
+}
+
+.location {
+  i {
+    font-size: 20px;
+  }
+  color: white;
+}
+
+.copyright p {
+  border-top: 1px solid white;
+}
+
+.form {
+  /* align-items: center; */
+  background-color:#173bbb;
+  width: 60%;
+  padding: 20px;
+  border: 1px solid white;
+  border-radius: 10px;
+  box-shadow: 8px 8px 5px rgb(255, 255, 255,0.3)
+}
+
+.form label {
+  display: block;
+  padding: 5px 0 5px 0;
+}
+
+.form input[type="text"]{
+  height: 44px;
+  width: 100%;
+}
+
+.form input[type="submit"] {
+  height: 44px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+#right-col {
+  display: flex;
+  align-content: center;
+}

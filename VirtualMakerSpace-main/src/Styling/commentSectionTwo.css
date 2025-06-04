@@ -1,0 +1,159 @@
+.comment-section {
+  max-width: 100%;
+  margin: 3%;
+  padding: 3%;
+  /* background: rgb(217, 176, 232); */
+  border-radius: 2%;
+  overflow-y: auto; /* Enable vertical scrollbar if needed */
+  max-height: 500px; /* Set a maximum height for the comment section */
+}
+
+.comment-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* To separate input and send button */
+  margin-bottom: 1%; /* Add margin between inputs and comments */
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: #def3ff; /* Light blue background */
+  margin-right: 5%;
+}
+
+.send-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.reply-input {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  outline: none;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: #def3ff; /* Light blue background */
+}
+
+.send-reply-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-left: 10px; /* Add margin between input box and button */
+}
+
+.comment {
+  margin-top: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  padding: 10px;
+}
+.comment-username {
+  margin-bottom: 5px; /* Adjust spacing between username and message */
+  font-weight: bold; /* Optionally make the username bold */
+}
+
+.comment-body {
+  /* display: flex; */
+  width: 100%;
+  align-items: center;
+}
+
+.comment-message {
+  font-size: 16px; /* Larger font size for main comment messages */
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 1%; /* Add margin between comments */
+  color: #333; /* Text color for main comment messages */
+  margin: 1%;
+  width: 100%;
+  display: inline-flex;
+}
+
+.reply-message {
+  margin: 1%;
+  font-size: 16px; /* Larger font size for main comment messages */
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 1%; /* Add margin between comments */
+  background-color:rgb(226, 220, 255);
+  margin-bottom: 2%;
+  width: 80%;
+  word-wrap: break-word;
+  overflow:scroll;
+}
+
+.message-text {
+  padding: 12px 16px; /* Adjust padding to increase the size of the bubble */
+  border-radius: 25px; /* Increase border-radius for a rounder bubble */
+  background-color: #c3e6cb; /* Light green background color */
+  color: black; /* Text color */
+  font-family: Arial, sans-serif; /* Specify the desired font family */
+  font-size: 18px; /* Increase font size for larger text */
+  width: 40%;
+  word-wrap: break-word;
+  overflow: scroll;
+}
+
+/* .like-reply-section {
+} */
+
+.action-buttons {
+  margin-top: -12px;
+}
+
+
+.like-button,
+.reply-button {
+  background: none;
+  border: none;
+  color: #007bff; /* Blue color for hyperlinks */
+  cursor: pointer;
+  text-decoration: underline; /* Underline style for hyperlinks */
+  margin-right: 2%; /* Add space between buttons */
+  background-color: rgb(255, 237, 255);
+  border-radius: 20%;
+  padding: 1%;
+  margin-bottom: 2%;
+  margin-left: 1%;
+}
+
+
+.like-button:hover,
+.reply-button:hover {
+  color: #0056b3; /* Darker blue color on hover */
+}
+
+.reply-input:hover {
+  background-color: #b1dfb1; /* Darken the background color of the input box on hover */
+}
+
+.reply-username {
+  margin-bottom: 5px; /* Adjust spacing between username and message */
+  font-weight: bold; /* Optionally make the username bold */
+}
+
+.profile-picture {
+  width: 40px; /* Set width and height to define the size of the circle */
+  height: 40px;
+  border-radius: 50%; /* Use border-radius to create a circle */
+  margin-left: 10px; /* Add some space between the profile picture and the message */
+  object-fit: cover; /* Ensure the picture fills the circle without distortion */
+}
+
+
+
+

@@ -1,0 +1,68 @@
+/* Style about us */
+
+/* For grids and stuff */
+/* https://www.w3schools.com/css/css_grid.asp */
+
+ #about button {
+    background-color: #1434a4;
+    color: white;
+    width: 170px;
+    height: 44px;
+    font-size: 16px;
+    border-style: none;
+    cursor: pointer;
+    margin: 0px 70px 0px 70px; 
+  }
+  
+  #about button:hover {
+    background-color: #27285C;
+  }
+
+#about-columns{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin: 20px;
+    column-gap: 10px;
+}
+
+#about {
+    margin: 20px;
+    background-color: white;
+    padding: 20px;
+}
+
+#about p {
+    font-size: 20px;
+    overflow-wrap: break-word;
+    background-color: white;
+}
+
+#about h1 {
+    text-align: center;
+}
+
+#about2{
+    border-radius: 10px;
+    margin: 20px;
+    background-color: white;
+
+}
+
+#about2 h1{
+    text-align: center;
+    padding-top: 10px;
+}
+
+#about2 p{
+    font-size: 20px;
+    margin: 10px;
+    padding: 10px;
+}
+
+#aboutImg img {
+    margin-top: 10%;
+    border-radius: 50px;
+    align-items: center;
+    max-width: 100%; /* Limit the maximum width of the image */
+    max-height: 100vh; /* Limit the maximum height of the image to the viewport height */
+}

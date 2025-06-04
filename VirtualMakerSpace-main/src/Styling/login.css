@@ -1,0 +1,147 @@
+
+#vertical{
+  width: 40%;
+  background-color: #1434a4;
+  height: 90vh;
+}
+
+.center {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  z-index: 1;
+  width: 70%;
+  height: 75vh;
+  background-color: #EEEEEE;
+}
+
+#leftCol{
+  float: left;
+  width: 40%;
+  box-sizing: border-box;
+  height: 90%;
+}
+#rightCol{
+  float: right;
+  width: 60%;
+  padding: 10px;
+  box-sizing: border-box;
+  height: 90%;
+}
+
+.loginform{
+  background-color: #EEEEEE;
+  border: none;
+  width: 95%;
+  box-shadow: none;
+  margin: auto;
+  padding: 40px;
+  margin-top: 25px;
+}
+
+.loginform input {
+  border-radius: 10px;
+  border-style: none;
+  margin-bottom: 10px;
+}
+.loginform input[type="password"] {
+  width: 100%;
+  height: 44px;
+}
+
+.loginform input[type="submit"] {
+  background-color: #1434a4;
+  color: white;
+  border-style: none;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.imgCartoon{
+  width: 110%;
+  height: auto;
+}
+
+/* Signup form css */
+.signUp{
+  margin-top: 0%;
+  padding: 0px;
+}
+.loginform input {
+  margin: 10;
+}
+
+.error {
+  background-color: rgb(255, 0, 0, 0.3);
+}
+
+.falseLogIn{
+  background-color: rgb(216, 216, 249);
+  padding: 12px;
+  font-size: 120%;
+  color: black;
+  font-weight: 500;
+}
+.tooltip {
+  background-color: aqua;
+  z-index: 100;
+}
+@media only screen and (max-width: 1040px) {
+  #leftCol {
+    width: 100%;
+    height: 20%;
+    margin-bottom: 0;
+    align-content: center;
+  }
+  .imgCartoon{
+    width: 30%;
+    height: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 0;
+  }
+  #rightCol{
+  width: 100%;
+  /* background-color: yellow; */
+  }
+    .form label {
+      padding: 0px;
+    }
+}
+
+@media only screen and (max-width: 1040px) {
+  .center {
+      height: 83vh;
+      top: 55%;
+    }
+    .loginform input {
+      margin: 7;
+    }
+}
+@media only screen and (max-width: 900px) {
+  .imgCartoon {
+    width: 30%;
+  }
+  .loginform input {
+    margin-bottom: 0px;
+  }
+  .center {
+    height: 76vh;
+    top: 58%;
+  }
+    .form label {
+      padding: 0px;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+  .imgCartoon {
+    width: 40%;
+  }
+  .center {
+    height: 78vh;
+  }
+}
