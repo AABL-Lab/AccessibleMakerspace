@@ -76,7 +76,7 @@ export default function Login(props){
               <input type="submit" value="Log In" />
             </form>
             {/* if user doesn't have an account they can navigate to sign up page */}
-            <p style={{ textAlign: "center", padding: "1%" }}> Don’t have an account? <a href="/signUp"> Sign Up</a> </p>
+            <p style={{ textAlign: "center", padding: "1%" }}> Don't have an account? <a href="/signUp"> Sign Up</a> </p>
           </div>
       </div>
     </div>
