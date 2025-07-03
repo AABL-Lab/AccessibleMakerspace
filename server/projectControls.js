@@ -402,19 +402,38 @@ app.post("/api/getUserProjects", async(req, res) => {
   }
 })
 
-app.post("/api/logIn", async(req, res) => {
-  console.log("Inside logIn api");
+// app.post("/api/logIn", async(req, res) => {
+//   console.log("Inside logIn api");
+//   try{
+//     result = await users.logIn(connection, req.body.userName, req.body.password);
+//     console.log("User Log In Result: " + result)
+//     res.send(result);
+//   }
+//   catch(error){
+//     console.log("Error: " + error);
+//     res.status(500).json({ error: error.message });
+//   }
+// })
 
-  try{
-    result = await users.logIn(connection, req.body.userName, req.body.password);
-    console.log("User Log In Result: " + result)
-    res.send(result);
+app.post('/api/logIn', async (req, res) => {
+  const { userName, password } = req.body;
+
+  try {
+    const client = await connect();
+    const isValid = await validateUser(client, userName, password);
+
+    if (isValid) {
+      res.status(200).send("1");
+    } else {
+      res.status(200).send("0");
+    }
+
+    client.end();
+  } catch (err) {
+    console.error("Login Error:", err);
+    res.status(500).send("Error");
   }
-  catch(error){
-    console.log("Error: " + error);
-    res.status(500).json({ error: error.message });
-  }
-})
+});
 
 app.post("/api/getTags", async(req, res) => {
   console.log("Sending Tags")
