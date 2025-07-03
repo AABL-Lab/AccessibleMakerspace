@@ -206,9 +206,8 @@ async function validateUser(client, userName, Password, neededID){
     storedPassword = storedPassword.rows[0].password;
     // console.log(storedPassword);
     // console.log(Password);
-    // console.log("Here");
-
-    // console.log(storedPassword);
+    Password = Password.trim();
+    storedPassword = storedPassword.trim();
     if (Password == storedPassword || await bcrypt.compare(Password, storedPassword)){
       // console.log("Here");
       if (neededID != undefined){
