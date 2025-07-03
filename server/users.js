@@ -13,8 +13,8 @@ const bcrypt = require('bcryptjs');
 async function logIn(client, userName, Password){
   // console.log("Loggin in User: " + userName);
   try{
-    userName = filter_content(userName);
-    Password = filter_content(Password);
+    userName = filter_content(userName).trim();
+    Password = filter_content(Password).trim();
     let valid = await validateUser(client, userName, Password);
     if (valid){
       return valid;
