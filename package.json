@@ -22,7 +22,8 @@
     "youtube-transcript": "^1.0.6"
   },
   "scripts": {
-    "start": "cd server && npm start && serve -s build",
+    "start": "cd server && npm start",
+    "heroku-postbuild": "cd .. && serve -s build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
