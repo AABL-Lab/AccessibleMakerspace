@@ -58,7 +58,7 @@ const UserCard = ({ user }) => {
         if (userLoggedIn === 'true') {
             window.location.href = "/userPage";
         } else {
-            window.location.href = "/publicUserPage";
+            window.location.href = "/visitorUserPage";
         }
     };
 
