@@ -15,7 +15,7 @@ async function sendImageRequest(id, e) {
 const UserCard = ({ user }) => {
     const [profilePic, setProfilePic] = useState('');
     const [coverImage, setCoverImg] = useState('');
-    const [userLoggedIn, setUserLoggedIn] = useState(false);
+    const [userLoggedIn, setUserLoggedIn] = useState('false');
     const [guest, setUserName] = useState('');
 
     //on load, get the user credentials & set default cover image
@@ -55,7 +55,11 @@ const UserCard = ({ user }) => {
         // Store the selected user's ID in session storage
         sessionStorage.setItem('selectedUserId', user.username);
         // Redirect to the user page
-        window.location.href = "/userPage";
+        if (userLoggedIn === 'true') {
+            window.location.href = "/userPage";
+        } else {
+            window.location.href = "/publicUserPage";
+        }
     };
 
     //when user logs out, clean up the sessionStorage 

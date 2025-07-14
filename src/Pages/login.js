@@ -14,7 +14,6 @@ export default function Login(props){
   //variable for error handling
   const [logInError, setlogInError] = useState('');
   let responseVal = "0";  
-  let isloggedIn = false;
 
   //function that processes submition of login form - called when Log In clicked
   const handleSubmit = async (event) => {
@@ -35,8 +34,9 @@ export default function Login(props){
   function accountApproval(){
     if(responseVal == "1"){ // account creation was successful 
       setlogInError(false);
+      const loggedIn = true;
       //store important values in session cookies for use on other pages - possible vulnerabilities 
-      sessionStorage.setItem('Status', isloggedIn); 
+      sessionStorage.setItem('Status', loggedIn); 
       sessionStorage.setItem('account', username);
       sessionStorage.setItem('key', password);
      
