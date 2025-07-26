@@ -422,6 +422,18 @@ app.post("/api/logIn", async(req, res) => {
   }
 })
 
+app.post("/api/getAdmin", async(req, res) => {
+  try{
+    result = await users.getAdmin(connection, req.body.userName, req.body.password);
+    console.log("User admin Result: " + result)
+    res.send(result);
+  }
+  catch(error){
+    console.log("Error: " + error);
+    res.status(500).json({ error: error.message });
+  }
+})
+
 app.post("/api/getTags", async(req, res) => {
   console.log("Sending Tags")
 

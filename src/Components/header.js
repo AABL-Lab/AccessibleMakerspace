@@ -44,7 +44,9 @@ export default function Header() {
               <a href="/projectUpload">
                 <button type="button" onClick={handleUploadProjectClick}> Upload Project +</button>
               </a>
-              <a href="/userPage" onClick={() => { sessionStorage.removeItem("selectedUserId"); }}>
+              <a href="/userPage" onClick={() => { 
+                sessionStorage.setItem("selectedUserId", sessionStorage.getItem("account"));
+                }}>
                 <img src="images/robot_new.jpg" className="profile-picture" alt="A Robot" />
               </a>
               <a href="#" onClick={handleLogOut}>Log Out</a>

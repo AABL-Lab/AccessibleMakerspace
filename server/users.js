@@ -1,6 +1,6 @@
 const { client, Connection } = require('pg');
 
-const {connect, filter_content, validateUser, getUserID} = require('./server');
+const {connect, filter_content, validateUser, getUserID, validateAdmin} = require('./server');
 // const { query } = require('express');
 // const { FOCUSABLE_SELECTOR } = require('@testing-library/user-event/dist/utils');
 const bcrypt = require('bcryptjs');
@@ -43,6 +43,16 @@ async function logIn(client, userName, Password){
   }
 }
 
+async function getAdmin(client, username, password) {
+  try {
+    let adminStatus = await validateAdmin(client, username, password);
+    return adminStatus;
+  } catch (error) {
+    console.error('error getting admin status' + error);
+    return false;
+  }
+}
+
 // This creates a new user
 async function createUser(client, userName, password, email){
     console.log("Creating User");
@@ -52,7 +62,7 @@ async function createUser(client, userName, password, email){
       if (typeof password != 'string') {throw("Password is not a string")}
       if (typeof email != 'string') {throw("Email is not a string")}
       // console.log("Type Checked");
-      userName = filter_content(userName);
+      userName = filter_content(userName).trim();
       // password = filter_content(password);
       password = await bcrypt.hash(password, 10);
       password = filter_content(password);
@@ -365,4 +375,4 @@ async function main(){
 
 // main();
 
-module.exports = {createUser, logIn, getUsers, getUserByName, deleteUser, getUserProjects};
+module.exports = {createUser, logIn, getAdmin, getUsers, getUserByName, deleteUser, getUserProjects};

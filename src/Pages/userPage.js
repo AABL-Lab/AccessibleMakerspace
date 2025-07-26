@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProjCard from "../Components/projCard";
 import axios from 'axios';
+import { decryptData } from "../Components/adminEncrypt";
 
 //Todo: restrict front end access to edit acces on userPage. user's shouldnt see the edit buttons or 
 // delete button unless it is their page. The server verifies the user before nay changes are made but 
@@ -23,16 +24,37 @@ export default function UserPage() {
   const [userData, setUserData] = useState("");
   const [account, setAccount] = useState("");
   const [userProjects, setUserProjects] = useState([]);
+  const [adminUser, setAdminUser] = useState(false);
 
   // Retrieve the selected user's ID from sessionStorage
-  useEffect(() => {
-    setSelectedUserId(sessionStorage.getItem("selectedUserId"));
-    setAccount(sessionStorage.getItem("account"));
-    let user = sessionStorage.getItem("account");
-    getSpecificProjects(user);
+    
+
+    // (async () => {
+    //   try {
+    //     const result = await verifyAdminStatus(storedAccount, storedKey);
+    //     setAdminUser(result);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // })();
+
+    //TODO still session, but encrypted, and verify admin everytime doing changes
+    useEffect(() => {
+    const storedUserId = sessionStorage.getItem("selectedUserId");
+    const storedAccount = sessionStorage.getItem("account");
+    const adminStatus = decryptData(sessionStorage.getItem('admin'));
+    setAdminUser(adminStatus === 'true');
+
+    getSpecificProjects(storedAccount);
+  
+
+    setSelectedUserId(storedUserId);
+    setAccount(storedAccount);
+
   }, []);
 
   // function that gets the user's projects 
+  // TODO: Need to change the logic to be the selected user
   async function getSpecificProjects(user){
     try {
       const response = await axios.post(`api/getUserProjects`, { username: user });
@@ -46,6 +68,9 @@ export default function UserPage() {
   // get the user's id based on their account name 
   useEffect(() => {
     if (account != null) {
+      if (!adminUser && userId !== account) {
+        window.location.href = "/visitorUserPage";
+      }
       const fetchUser = async () => {
         try {
           const response = await axios.post(`api/getUserByName`, { userName: account });

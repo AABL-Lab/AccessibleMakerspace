@@ -366,4 +366,4 @@ async function main(){
 
 // main();
 
-module.exports = {connect, filter_content, validateUser, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, getGlobalTags};
+module.exports = {connect, filter_content, validateUser, validateAdmin, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, getGlobalTags};

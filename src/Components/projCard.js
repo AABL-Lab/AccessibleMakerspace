@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import axios from 'axios';
+import { decryptData } from "./adminEncrypt";
 
 // Send the requested project's id to cloudinary to get cover photo 
 async function sendImageRequest (id, e) {
@@ -15,9 +16,10 @@ export { sendImageRequest };
 
 const ProjCard = ({ id , info }) => {
   const [coverImage, setCoverImg] = useState('');
-  const [userLoggedIn, setUserLoggedIn] = useState(false); 
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [guest, setUserName] = useState(''); 
   const [key, setKey] = useState(''); 
+  const [adminUser, setAdminUser] = useState(false);
 
   // TODO: toggle edit & delete buttons based on the logged in user 
   // async function checkUserID (guest) {
@@ -29,9 +31,11 @@ const ProjCard = ({ id , info }) => {
   
   //on load, get user credentials & make image request
   useEffect(() => { 
-    setUserLoggedIn(sessionStorage.getItem('Status'));
+    setUserLoggedIn(sessionStorage.getItem('Status') === 'true');
     setKey(sessionStorage.getItem('key'));
     setUserName(sessionStorage.getItem('account'));
+    const adminStatus = decryptData(sessionStorage.getItem('admin'));
+    setAdminUser(adminStatus === 'true');
 
     // checkUserID(guest);
 
@@ -92,7 +96,7 @@ const ProjCard = ({ id , info }) => {
     // displays each card with the proper format 
     <div className="projCard" id={id} onClick={handleClick}> 
       <div className="innerBox">
-        {userLoggedIn ? (
+        {userLoggedIn && adminUser ? (
           <div className="controls"> 
             <button className="deleteLink" onClick={handleDelete} > Delete </button>
             <button className="editLink" id={id} onClick={handleEdit}> Edit </button>
