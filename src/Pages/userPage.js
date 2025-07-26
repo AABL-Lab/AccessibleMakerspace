@@ -42,8 +42,11 @@ export default function UserPage() {
     useEffect(() => {
     const storedUserId = sessionStorage.getItem("selectedUserId");
     const storedAccount = sessionStorage.getItem("account");
-    const adminStatus = decryptData(sessionStorage.getItem('admin'));
-    setAdminUser(adminStatus === 'true');
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(sessionStorage.getItem('admin'));
+      setAdminUser(adminStatus === 'true');
+    }
 
     getSpecificProjects(storedAccount);
   

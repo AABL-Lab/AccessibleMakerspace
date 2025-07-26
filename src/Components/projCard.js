@@ -19,6 +19,7 @@ const ProjCard = ({ id , info }) => {
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [guest, setUserName] = useState(''); 
   const [key, setKey] = useState(''); 
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [adminUser, setAdminUser] = useState(false);
 
   // TODO: toggle edit & delete buttons based on the logged in user 
@@ -34,8 +35,12 @@ const ProjCard = ({ id , info }) => {
     setUserLoggedIn(sessionStorage.getItem('Status') === 'true');
     setKey(sessionStorage.getItem('key'));
     setUserName(sessionStorage.getItem('account'));
-    const adminStatus = decryptData(sessionStorage.getItem('admin'));
-    setAdminUser(adminStatus === 'true');
+    setSelectedUserId(sessionStorage.getItem('selectedUserId'));
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(sessionStorage.getItem('admin'));
+      setAdminUser(adminStatus === 'true');
+    }
 
     // checkUserID(guest);
 
@@ -96,7 +101,7 @@ const ProjCard = ({ id , info }) => {
     // displays each card with the proper format 
     <div className="projCard" id={id} onClick={handleClick}> 
       <div className="innerBox">
-        {userLoggedIn && adminUser ? (
+        {userLoggedIn && (adminUser || selectedUserId === guest) ? (
           <div className="controls"> 
             <button className="deleteLink" onClick={handleDelete} > Delete </button>
             <button className="editLink" id={id} onClick={handleEdit}> Edit </button>

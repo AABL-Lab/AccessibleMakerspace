@@ -70,8 +70,11 @@ export default function SingleProj(props){
     setUserLoggedIn(sessionStorage.getItem('Status') === 'true');
     setEditingMode(sessionStorage.getItem('Editing'));
     setKey(sessionStorage.getItem('key'));
-    const adminStatus = decryptData(sessionStorage.getItem('admin'));
-    setAdminUser(adminStatus === 'true');
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(sessionStorage.getItem('admin'));
+      setAdminUser(adminStatus === 'true');
+    }
 
     const handleResize = () => {
       setDimensions({
