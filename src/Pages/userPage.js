@@ -44,7 +44,7 @@ export default function UserPage() {
     const storedAccount = sessionStorage.getItem("account");
     const adminEncrypt = sessionStorage.getItem('admin');
     if (adminEncrypt) {
-      const adminStatus = decryptData(sessionStorage.getItem('admin'));
+      const adminStatus = decryptData(adminEncrypt);
       setAdminUser(adminStatus === 'true');
     }
 

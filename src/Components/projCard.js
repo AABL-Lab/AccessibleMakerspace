@@ -101,7 +101,8 @@ const ProjCard = ({ id , info }) => {
     // displays each card with the proper format 
     <div className="projCard" id={id} onClick={handleClick}> 
       <div className="innerBox">
-        {userLoggedIn && (adminUser || selectedUserId === guest) ? (
+        {/* || selectedUserId === guest */}
+        {userLoggedIn && adminUser ? (
           <div className="controls"> 
             <button className="deleteLink" onClick={handleDelete} > Delete </button>
             <button className="editLink" id={id} onClick={handleEdit}> Edit </button>
