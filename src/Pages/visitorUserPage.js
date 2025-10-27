@@ -30,8 +30,8 @@ export default function VisitorUserPage() {
           setDisplayName(userData.displayname || "No display name");
           setBio(userData.bio || "No bio provided");
           
-          if (userData.profilePic) {
-            setProfilePic(userData.profilePic);
+          if (userData.profilepicurl) {
+            setProfilePic(userData.profilepicurl);
           }
 
           getSpecificProjects(userData.username);
@@ -58,11 +58,10 @@ export default function VisitorUserPage() {
       <div class="profile-row">
         <div className="column-1">
           <div className="picture-container">
-            {profilePic ? (
-              <img src={profilePic} alt="Profile" />
-            ) : (
-              <span>No profile picture</span>
-            )}
+            <img 
+              src={profilePic ? profilePic : "images/robot_new.jpg"} 
+              alt={profilePic ? `${displayName}'s profile picture` : "Default profile picture"} 
+            />
           </div>
 
           <div className="display-name-container">
