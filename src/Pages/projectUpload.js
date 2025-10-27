@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import FilterableDropdown from "../Components/FilterableDropdown";
 import axios from "axios";
+import { decryptData } from "../Components/adminEncrypt";
 import fetch from "node-fetch"
 
 // Server call to get the general list for Tags & Skills
@@ -132,6 +133,8 @@ export default function Home(){
   const [quantity, setQuantity] = useState(0);   
   const [itemName, setItemName] = useState("");
   const [projVideo, setProjVideo] = useState("");
+  const [aslVideo, setAslVideo] = useState("");
+  const [adminUser, setAdminUser] = useState(false);
   const [items, setItems] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -160,6 +163,12 @@ export default function Home(){
         console.error("Error fetching data:", error);
       });
     const editing = sessionStorage.getItem('Editing') === 'true';
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(adminEncrypt);
+      setAdminUser(adminStatus === 'true');
+    }
+
     //if in editing mpde the fill the form with the clicked project's stored information
     if(editing){ 
       setEditMode(editing);
@@ -193,7 +202,8 @@ export default function Home(){
   //once the project's data is recieved from server, fill in the appropriate variables 
   useEffect(() => {
     setTitle(formData.title || "");
-    setProjVideo(formData.videourl || null);
+    setProjVideo(formData.videourl || "");
+    setAslVideo(formData.aslurl || "");
     setProjDesc(formData.description || "");
     setSkills(formData.skills || []);
     console.log("skills projectUpload");
@@ -297,7 +307,7 @@ export default function Home(){
       const response = await axios.post('/api/createProject', {
         userName: username, 
         password: password, title:title, description:projDesc, 
-        videoURL:projVideo, projImages:[],
+        videoURL:projVideo, aslURL:aslVideo, projImages:[],
         supplies:items, skill:skills, tags:typedTag 
       });
 
@@ -371,7 +381,7 @@ export default function Home(){
       let response = await axios.post("/api/editProject", {
         username: username, password: password, projid:Number(id), 
         title:title, description:projDesc, 
-        videoURL:projVideo, projImages:projImages,
+        videoURL:projVideo, aslURL:aslVideo, projImages:projImages,
         supplies:items, skill:skills, tags:typedTag 
       });
       console.log(response.data);
@@ -480,6 +490,17 @@ export default function Home(){
               <h2>Video Description:</h2>
               {/* Textarea for entering video descriptions */}
               <textarea id="video-description" name="video-description" rows="3" placeholder="Enter video description"></textarea>
+              <h2 style={{marginTop: '15px'}}>Upload ASL Video:</h2>
+              {/* Input for entering ASL video URLs */}
+              <input 
+                type="url" 
+                id ="asl-url" 
+                name="asl-url" 
+                value={aslVideo} 
+                onChange={(e) => setAslVideo(e.target.value)}
+                disabled={!adminUser} 
+                placeholder={adminUser ? "Enter ASL video URL" : "Admin access required"}
+              />
             </div>
           </div>
         </div>

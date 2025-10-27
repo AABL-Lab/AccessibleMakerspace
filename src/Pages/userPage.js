@@ -124,15 +124,39 @@ export default function UserPage() {
   }, [userData])
 
   //allows user to change their account's profile photo 
-  //todo: connect to backend functionality 
-  const handlePictureChange = (event) => {
+  const handlePictureChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Show a preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePic(reader.result);
       };
       reader.readAsDataURL(file);
+
+      // Upload the file
+      const formData = new FormData();
+      formData.append('profilePic', file);
+      formData.append('username', account);
+
+      try {
+        const response = await axios.post('/api/uploadProfilePic', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        if (response.data.status === 'success') {
+          // Set the final URL from Cloudinary
+          setProfilePic(response.data.profilePicUrl);
+          alert("Profile picture updated!");
+        }
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        alert("Failed to upload picture.");
+        // Revert to old picture if upload fails (optional)
+        if (userData.profilepicurl) setProfilePic(userData.profilepicurl);
+      }
     }
   };
 
@@ -147,9 +171,24 @@ export default function UserPage() {
     setSavedClass("");
   };
 
-  const handleSaveDisplayName = () => {
-    setEditMode(false);
-    setSavedClass("saved");
+  const handleSaveDisplayName = async () => {
+    try {
+      const response = await axios.post('/api/editUser', {
+        currentUsername: account,
+        displayName: displayName // Only send the field to update
+      });
+
+      if (response.data.status === 'success') {
+        setEditMode(false);
+        setSavedClass("saved"); // Your saved animation
+        alert("Display name saved!");
+      } else {
+        alert("Failed to save display name: " + response.data.error);
+      }
+    } catch (error) {
+      console.error("Error saving display name:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleShowChangePassword = () => {
@@ -157,23 +196,44 @@ export default function UserPage() {
   };
   
   //password verification 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     const capitalLetterRegex = /[A-Z]/;
     const numberRegex = /[0-9]/;
 
     if (oldPassword && newPassword) {
       if (!capitalLetterRegex.test(newPassword)) {
         setPasswordError("Password must contain at least one capital letter.");
-      } else if (!numberRegex.test(newPassword)) {
-        setPasswordError("Password must contain at least one number");
-      } else {
-        // localStorage.setItem('userPassword', newPassword);
-        alert("Password changed successfully");
-        setOldPassword("");
-        setNewPassword("");
-        setShowChangePassword(false);
-        setPasswordError(""); // Reset error on success
+        return;
       }
+      if (!numberRegex.test(newPassword)) {
+        setPasswordError("Password must contain at least one number");
+        return;
+      }
+
+
+      try {
+        const response = await axios.post('/api/editUser', {
+          currentUsername: account,
+          currentPassword: oldPassword,
+          newPassword: newPassword // Send old and new password
+        });
+
+        if (response.data.status === 'success') {
+          alert("Password changed successfully");
+          // Update the stored key in session storage
+          sessionStorage.setItem('key', newPassword); 
+          setOldPassword("");
+          setNewPassword("");
+          setShowChangePassword(false);
+          setPasswordError(""); // Reset error on success
+        } else {
+          setPasswordError("Failed to change password. Is your old password correct?");
+        }
+      } catch (error) {
+        console.error("Error changing password:", error);
+        setPasswordError("An error occurred. Please try again.");
+      }
+
     } else {
       alert("Please enter both old and new passwords.");
     }
@@ -184,10 +244,24 @@ export default function UserPage() {
     setBioEditMode(true);
   };
 
-  const handleSaveBio = () => {
-    setBio(newBio);
-    setBioEditMode(false);
-    alert("Bio saved successfully");
+  const handleSaveBio = async () => {
+    try {
+      const response = await axios.post('/api/editUser', {
+        currentUsername: account,
+        bio: newBio
+      });
+
+      if (response.data.status === 'success') {
+        setBio(newBio);
+        setBioEditMode(false);
+        alert("Bio saved successfully");
+      } else {
+        alert("Failed to save bio: " + response.data.error);
+      }
+    } catch (error) {
+      console.error("Error saving bio:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleDeleteConfirmation = () => {

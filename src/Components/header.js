@@ -5,7 +5,7 @@ export default function Header() {
   const [showSignInPopup, setShowSignInPopup] = useState(false);
 
   useEffect(() => { 
-    setUserSignIn(sessionStorage.getItem('Status'));
+    setUserSignIn(sessionStorage.getItem('Status') === 'true');
     console.log(userSignIn); 
   },[]);
 
@@ -47,7 +47,7 @@ export default function Header() {
               <a href="/userPage" onClick={() => { 
                 sessionStorage.setItem("selectedUserId", sessionStorage.getItem("account"));
                 }}>
-                <img src="images/robot_new.jpg" className="profile-picture" alt="A Robot" />
+                <img src="images/Profile_Icon.png" className="profile-picture" alt="A Robot" />
               </a>
               <a href="#" onClick={handleLogOut}>Log Out</a>
             </div>

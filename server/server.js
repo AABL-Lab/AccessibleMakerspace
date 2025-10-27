@@ -242,29 +242,31 @@ async function connect() {
     user: 'u2at07d72nh951',
     password: 'p4692b2ff0affa7293a60cf873ad33b8f2e57c1f2a54356f5ee2c26586508b003',
     database: 'da725tikbjen67',
-    // connectionString: "dbname=d7v5katklfeaf7 host=ec2-3-218-243-246.compute-1.amazonaws.com port=5432 user=hglurgefpcidex password=0211ccea126ef7b0ed0c1d3849a5e65b56d16d7b07ce413bf2d179e94b8e7345 sslmode=require",
-    ssl:{
+    ssl: {
       rejectUnauthorized: false
     }
   });
 
   let fail = true;
   let timeout = 1000;
-  while(fail == true){
-    try{
-      console.log("Attempting to Connect")
+  
+  while (fail) {
+    try {
+      console.log("Attempting to Connect");
       await client.connect();
-      console.log("Connected")
+      console.log("Connected");
       fail = false;
-    }
-    catch(err){
-      console.log("Connection Failed with Error: " + err);
-      fail = false;
-      setTimeout(() => {console.log("Waiting " + timeout + "ms"), timeout});
-      timeout = timeout * 2
+    } catch (err) {
+      console.log("Connection Failed with Error: " + err.message);
+      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      
+      console.log("Waiting " + timeout + "ms before retrying...");
+      await wait(timeout);
+      
+      timeout = timeout * 2;
     }
   }
-  
+
   console.log("Connection Established");
   return client;
 }

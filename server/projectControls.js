@@ -9,6 +9,7 @@ const {connect, tags, setGlobalTags, getGlobalTags, validateUser, filter_content
 const {getProjects, getProjectID, createProject, editProject, deleteProject} = require('./projects');
 const users = require('./users.js');
 const comments = require('./comments.js')
+const server = require('./server.js')
 // const { default: userEvent } = require("@testing-library/user-event");
 // const { click } = require("@testing-library/user-event/dist/click.js");
 // const { upload } = require("@testing-library/user-event/dist/upload.js");
@@ -442,6 +443,102 @@ app.post("/api/getTags", async(req, res) => {
   }
   catch(error){
     console.log("Error: " + error);
+    res.status(500).json({ error: error.message });
+  }
+})
+
+app.post("/api/editUser", async(req, res) => {
+  console.log("Editing User Profile API")
+  try {
+    const { 
+      currentUsername, 
+      currentPassword, 
+      newUsername, 
+      newPassword, 
+      displayName, 
+      bio, 
+      email 
+    } = req.body;
+
+    // Get the userID from the currentUsername
+    let userID = await server.getUserID(connection, currentUsername);
+    if (userID === -1) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    
+    // Call the updated editUser function
+    let result = await users.editUser(
+      connection, 
+      userID, 
+      currentUsername, 
+      currentPassword, 
+      newUsername, 
+      newPassword, 
+      displayName, 
+      bio, 
+      email
+    );
+    
+    if (result === "success") {
+      res.send({ status: "success" });
+    } else {
+      res.status(400).json({ error: result });
+    }
+  }
+  catch(error){
+    console.log("Editing User API Error: " + error)
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/uploadProfilePic', mult.single('profilePic'), async (req, res) => {
+  console.log("Uploading Profile Picture")
+  try {
+    const { username } = req.body;
+    const file = req.file; // The uploaded file
+
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
+
+    // 1. Validate user
+    let userID = await server.getUserID(connection, username);
+    if (userID === -1) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // 2. Upload image to Cloudinary
+    // We need to upload from the file buffer
+    const b64 = Buffer.from(file.buffer).toString("base64");
+    let dataURI = "data:" + file.mimetype + ";base64," + b64;
+    const uploadedImage = await cloudinary.uploader.upload(dataURI, {
+      folder: `user_profile/${userID}` // Store in a user-specific folder
+    });
+
+    const imageUrl = uploadedImage.secure_url;
+
+    // 3. Save the URL to the database
+    let updateResult = await users.editUser(
+      connection,
+      userID,
+      username,
+      undefined,
+      undefined, // newUsername
+      undefined, // newPassword
+      undefined, // displayName
+      undefined, // bio
+      undefined, // email
+      imageUrl     // profilePicUrl
+    );
+
+    if (updateResult === "success") {
+      res.send({ status: "success", profilePicUrl: imageUrl });
+    } else {
+      res.status(500).json({ error: "Failed to save image URL to database." });
+    }
+  }
+  catch (error){
+    console.log("Upload Profile Pic API Error: " + error)
     res.status(500).json({ error: error.message });
   }
 })
