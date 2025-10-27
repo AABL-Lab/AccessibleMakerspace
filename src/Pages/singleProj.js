@@ -121,7 +121,7 @@ export default function SingleProj(props){
       }
     }
     if(aslVideo != null){
-      const match = youtubeVideo.match(regex);
+      const match = aslVideo.match(regex);
       if (match && match[1]) {
         setAslID(match[1]);
         setASLstatus(true);
