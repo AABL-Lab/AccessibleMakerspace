@@ -1,6 +1,6 @@
 const { client, Connection } = require('pg');
 
-const {connect, filter_content, validateUser, getUserID} = require('./server');
+const {connect, filter_content, validateUser, getUserID, validateAdmin} = require('./server');
 // const { query } = require('express');
 // const { FOCUSABLE_SELECTOR } = require('@testing-library/user-event/dist/utils');
 const bcrypt = require('bcryptjs');
@@ -13,8 +13,8 @@ const bcrypt = require('bcryptjs');
 async function logIn(client, userName, Password){
   // console.log("Loggin in User: " + userName);
   try{
-    userName = filter_content(userName);
-    Password = filter_content(Password);
+    userName = filter_content(userName).trim();
+    Password = filter_content(Password).trim();
     let valid = await validateUser(client, userName, Password);
     if (valid){
       return valid;
@@ -43,6 +43,16 @@ async function logIn(client, userName, Password){
   }
 }
 
+async function getAdmin(client, username, password) {
+  try {
+    let adminStatus = await validateAdmin(client, username, password);
+    return adminStatus;
+  } catch (error) {
+    console.error('error getting admin status' + error);
+    return false;
+  }
+}
+
 // This creates a new user
 async function createUser(client, userName, password, email){
     console.log("Creating User");
@@ -52,7 +62,7 @@ async function createUser(client, userName, password, email){
       if (typeof password != 'string') {throw("Password is not a string")}
       if (typeof email != 'string') {throw("Email is not a string")}
       // console.log("Type Checked");
-      userName = filter_content(userName);
+      userName = filter_content(userName).trim();
       // password = filter_content(password);
       password = await bcrypt.hash(password, 10);
       password = filter_content(password);
@@ -83,71 +93,78 @@ async function createUser(client, userName, password, email){
   }
 
 // This edits a user
-  async function editUser(client, userID, userName, passWord, displayName, bio, email){
-    // let Status = 0
-    // Add User Validation
-    if (await validateUser(client, userName, passWord, userID) == true){
-      try{
-        if (userName != undefined){
-          the_query = "UPDATE users SET username = '" + filter_content(userName) + "' where userid = " + userID + ";";
-          // console.log(the_query);
-          await client.query(the_query);
-          // Status = (Status) * 10 + 1;
-        }
-      }
-      catch (error){
-        console.log("Error: " + error);
-        return "username";
-      }
-      try{
-        if (passWord != undefined){
-          the_query = "UPDATE users SET password = '" + filter_content(await bcrypt.hash(passWord, 10)) + "' where userid = " + userID + ";";
-          // console.log(the_query);
-          await client.query(the_query);
-        }
-      }
-      catch (error){
-        console.log("Error: " + error);
-        return "password";
-      }
-    
-      try{
-        if (displayName != undefined){
-          the_query = "UPDATE users SET displayname = '" + filter_content(displayName) + "' where userid = " + userID + ";";
-          // console.log(the_query);
-          await client.query(the_query);
-        }
-      }
-      catch (error){
-        console.log("Error: " + error);
-        return "displayname";
-      }
-    
-      try{
-        if (bio != undefined){
-          the_query = "UPDATE users SET bio = '" + filter_content(bio) + "' where userid = " + userID + ";";
-          // console.log(the_query);
-          await client.query(the_query);
-        }
-      }
-      catch (error){
-        console.log("Error: " + error);
-        return "bio";
-      }
-    
-      try{
-        if (email != undefined){
-          the_query = "UPDATE users SET email = '" + filter_content(email) + "' where userid = " + userID + ";";
-          // console.log(the_query);
-          await client.query(the_query);
-        }
-      }
-      catch (error){
-        console.log("Error: " + error);
-        return error;
+  async function editUser(client, userID, currentUsername, currentPassword, newUsername, newPassword, displayName, bio, email, profilePicUrl){
+    // Validate the user with their CURRENT credentials
+    try{
+      if (newUsername != undefined){
+        the_query = "UPDATE users SET username = '" + filter_content(newUsername) + "' where userid = " + userID + ";";
+        await client.query(the_query);
       }
     }
-    return "success";
+    catch (error){
+      console.log("Error updating username: " + error);
+      return "username"; // Or handle error as needed
+    }
+
+    try{
+      if (newPassword != undefined){
+        // Hash the NEW password
+        let hashedPassword = await bcrypt.hash(newPassword, 10);
+        the_query = "UPDATE users SET password = '" + filter_content(hashedPassword) + "' where userid = " + userID + ";";
+        await client.query(the_query);
+      }
+    }
+    catch (error){
+      console.log("Error updating password: " + error);
+      return "password";
+    }
+  
+    try{
+      if (displayName != undefined){
+        the_query = "UPDATE users SET displayname = '" + filter_content(displayName) + "' where userid = " + userID + ";";
+        await client.query(the_query);
+      }
+    }
+    catch (error){
+      console.log("Error updating displayname: " + error);
+      return "displayname";
+    }
+  
+    try{
+      if (bio != undefined){
+        the_query = "UPDATE users SET bio = '" + filter_content(bio) + "' where userid = " + userID + ";";
+        await client.query(the_query);
+      }
+    }
+    catch (error){
+      console.log("Error updating bio: " + error);
+      return "bio";
+    }
+  
+    try{
+      if (email != undefined){
+        the_query = "UPDATE users SET email = '" + filter_content(email) + "' where userid = " + userID + ";";
+        await client.query(the_query);
+      }
+    }
+    catch (error){
+      console.log("Error updating email: " + error);
+      return "email";
+    }
+
+    try{
+      // Added for profile picture
+      if (profilePicUrl != undefined){
+        the_query = "UPDATE users SET profilepicurl = '" + filter_content(profilePicUrl) + "' where userid = " + userID + ";";
+        await client.query(the_query);
+      }
+    }
+    catch (error){
+      console.log("Error updating profile picture URL: " + error);
+      return "profilepicurl";
+    }
+
+    return "success"; // All updates succeeded
   }
 
 // This function gets all the projects that the user had created
@@ -176,7 +193,7 @@ async function createUser(client, userName, password, email){
 
   async function getUsers(client){
     try {
-      let query = "SELECT username, displayname, bio FROM users WHERE displayname IS NOT NULL;";
+      let query = "SELECT username, displayname, bio, profilepicurl FROM users WHERE displayname IS NOT NULL;";
 
       console.log(query);
 
@@ -201,7 +218,8 @@ async function createUser(client, userName, password, email){
       if (userID == -1){
         throw ("User Does Not Exist");
       }
-      let query = "SELECT username, displayname, bio FROM users WHERE userid = " + userID + ";";
+      // Make sure your 'users' table has a 'profilepicurl' column!
+      let query = "SELECT username, displayname, bio, profilepicurl FROM users WHERE userid = " + userID + ";";
 
       // console.log(query);
 
@@ -365,4 +383,4 @@ async function main(){
 
 // main();
 
-module.exports = {createUser, logIn, getUsers, getUserByName, deleteUser, getUserProjects};
+module.exports = {createUser, logIn, getAdmin, getUsers, getUserByName, deleteUser, getUserProjects, editUser};

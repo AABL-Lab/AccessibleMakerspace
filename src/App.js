@@ -26,6 +26,7 @@ import Projects from "./Pages/projects";
 import SingleProj from './Pages/singleProj.js';
 import ProjectUpload from "./Pages/projectUpload.js";
 import UserPage from "./Pages/userPage.js";
+import VisitorUserPage from "./Pages/visitorUserPage.js";
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
 				<Route path="/projectUpload" element={<ProjectUpload />} />
 				<Route path="/makers" element={<Makers />}/>
 				<Route path="/userPage" element={<UserPage />} />
+				<Route path="/visitorUserPage" element={<VisitorUserPage />} />
 				{/* boolean setShowNav hides the navBar on login & signUp pages */}
 				<Route path="/login" element={<Login funcNav={setShowNav}/>}/>
 				<Route path="/signUp" element={<SignUp funcNav={setShowNav}/>}/>

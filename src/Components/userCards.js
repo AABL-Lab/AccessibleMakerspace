@@ -15,7 +15,7 @@ async function sendImageRequest(id, e) {
 const UserCard = ({ user }) => {
     const [profilePic, setProfilePic] = useState('');
     const [coverImage, setCoverImg] = useState('');
-    const [userLoggedIn, setUserLoggedIn] = useState(false);
+    const [userLoggedIn, setUserLoggedIn] = useState('false');
     const [guest, setUserName] = useState('');
 
     //on load, get the user credentials & set default cover image
@@ -23,30 +23,25 @@ const UserCard = ({ user }) => {
         setUserLoggedIn(sessionStorage.getItem('Status'));
         setUserName(sessionStorage.getItem('account'));
 
-        const fetchData = async () => {
-            try {
-                const imageUrl = await sendImageRequest(user.id);
-                setCoverImg(imageUrl[0]);
-            } catch (error) {
-                console.error('Error fetching image URL:', error);
-            }
-        };
-        fetchData();
+        // const fetchData = async () => {
+        //     try {
+        //         const imageUrl = await sendImageRequest(user.id);
+        //         setCoverImg(imageUrl[0]);
+        //     } catch (error) {
+        //         console.error('Error fetching image URL:', error);
+        //     }
+        // };
+        // fetchData();
     }, []);
 
     //on load, is user has a specific profile picture then display that image 
     useEffect(() => {
-      const fetchData = async () => {
-          try {
-              // Assuming the user object contains a field for profile picture URL
-              const imageUrl = user.profilePicUrl; // todo: Change this to the actual field name
-              setProfilePic(imageUrl);
-          } catch (error) {
-              console.error('Error fetching image URL:', error);
-          }
-      };
-      fetchData();
-    }, []);
+      // Set the profile pic from the user prop
+      // Assumes the user object has the 'profilepicurl' property from the database
+      if (user.profilepicurl) {
+          setProfilePic(user.profilepicurl);
+      }
+    }, [user.profilepicurl]); // Update when the user prop changes
 
     //when you click on a userCard take user to userPage
     const handleClick = (event) => {
@@ -55,7 +50,11 @@ const UserCard = ({ user }) => {
         // Store the selected user's ID in session storage
         sessionStorage.setItem('selectedUserId', user.username);
         // Redirect to the user page
-        window.location.href = "/userPage";
+        if (userLoggedIn === 'true') {
+            window.location.href = "/userPage";
+        } else {
+            window.location.href = "/visitorUserPage";
+        }
     };
 
     //when user logs out, clean up the sessionStorage 
@@ -69,9 +68,15 @@ const UserCard = ({ user }) => {
         <div className="userCard" onClick={handleClick}>
             <div className="innerBox">
                 <div>
-                    {/* Todo - remove the hardcoded image below & uncomment the line undernaeth it once image is connected to server */}
-                    <img src="images/robot_new.jpg" className="thumbnail" alt = "A Soyer Robot"/>  {/* Placeholder */}
-                    {/* {profilePic && <img className="profilePic" src={profilePic} alt="Profile Picture" />} */}
+                    {/* Conditionally render the image.
+                      If profilePic has a value, use it.
+                      Otherwise, default to "images/robot_new.jpg".
+                    */}
+                    <img 
+                      src={profilePic ? profilePic : "images/robot_new.jpg"} 
+                      className="thumbnail" 
+                      alt={profilePic ? `${user.displayname}'s profile picture` : "A Soyer Robot"}
+                    />
                 </div>
                 <div style={{ textAlign: "center", overflowWrap: "normal" }}>
                     <h2>{user.displayname}</h2>

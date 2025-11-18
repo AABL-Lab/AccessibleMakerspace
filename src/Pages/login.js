@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
+import { encryptData } from "../Components/adminEncrypt";
 
 // SQL via SSH
 // https://dev.to/itsakankxa/node-js-how-to-access-mysql-remotely-using-ssh-heo
@@ -14,7 +15,6 @@ export default function Login(props){
   //variable for error handling
   const [logInError, setlogInError] = useState('');
   let responseVal = "0";  
-  let isloggedIn = false;
 
   //function that processes submition of login form - called when Log In clicked
   const handleSubmit = async (event) => {
@@ -31,14 +31,30 @@ export default function Login(props){
     accountApproval(responseVal);
   }
 
+  const checkAdminStatus = async (username, password) => {
+    try {
+      const adminResponse = await axios.post('/api/getAdmin', { 
+        userName: username, 
+        password: password 
+      });
+      return adminResponse.data;
+    } catch (error) {
+      console.error('error getting admin status');
+      return false;
+    }
+  }
+
   //check the login return value to see if it was a success
-  function accountApproval(){
+  async function accountApproval(){
     if(responseVal == "1"){ // account creation was successful 
       setlogInError(false);
+      const loggedIn = true;
       //store important values in session cookies for use on other pages - possible vulnerabilities 
-      sessionStorage.setItem('Status', isloggedIn); 
+      sessionStorage.setItem('Status', loggedIn); 
       sessionStorage.setItem('account', username);
       sessionStorage.setItem('key', password);
+      const admin = await checkAdminStatus(username, password);
+      sessionStorage.setItem('admin', encryptData(admin));
      
       //TODO: Pop-up window saying "welcome"
 
@@ -76,7 +92,7 @@ export default function Login(props){
               <input type="submit" value="Log In" />
             </form>
             {/* if user doesn't have an account they can navigate to sign up page */}
-            <p style={{ textAlign: "center", padding: "1%" }}> Don’t have an account? <a href="/signUp"> Sign Up</a> </p>
+            <p style={{ textAlign: "center", padding: "1%" }}> Don't have an account? <a href="/signUp"> Sign Up</a> </p>
           </div>
       </div>
     </div>

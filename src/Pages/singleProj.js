@@ -4,6 +4,7 @@ import YouTube, {YoutubeProps} from "react-youtube";
 import CommentSection from "../Components/commentSectionTwo"; 
 import PhotoSlider from "../Components/photoslider";
 import axios from "axios";
+import { decryptData } from "../Components/adminEncrypt";
 const {sendImageRequest} = require('../Components/projCard');
 
 //grab image request information from click on projects page
@@ -36,10 +37,11 @@ export default function SingleProj(props){
   const [items, setItems] = useState([]);
   const [aslExists, setASLstatus]= useState(false);
   const [videoExists, setVideoExists]= useState(false);
-  const [userLoggedIn, setUserLoggedIn] = useState(false); 
+  const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [editingMode, setEditingMode] = useState(false);
   const [id, SetID] = useState('');
   const [key, setKey] = useState(''); 
+  const [adminUser, setAdminUser] = useState(false);
 
   console.log("I am in Single project function");
   
@@ -65,9 +67,14 @@ export default function SingleProj(props){
       //when the project info is recieved from the server, check for videos
       checkVideos(project.aslurl,project.videourl);
     });
-    setUserLoggedIn(sessionStorage.getItem('Status'));
-    setEditingMode(sessionStorage.getItem('Editing')); 
+    setUserLoggedIn(sessionStorage.getItem('Status') === 'true');
+    setEditingMode(sessionStorage.getItem('Editing'));
     setKey(sessionStorage.getItem('key'));
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(sessionStorage.getItem('admin'));
+      setAdminUser(adminStatus === 'true');
+    }
 
     const handleResize = () => {
       setDimensions({
@@ -114,7 +121,7 @@ export default function SingleProj(props){
       }
     }
     if(aslVideo != null){
-      const match = youtubeVideo.match(regex);
+      const match = aslVideo.match(regex);
       if (match && match[1]) {
         setAslID(match[1]);
         setASLstatus(true);
@@ -155,7 +162,7 @@ export default function SingleProj(props){
   return(
     <div>
       <h1 style={{textAlign:"center",marginTop:"40px",marginBottom:"10px"}}> {projectInfo.title} </h1>
-      {userLoggedIn ? (
+      {userLoggedIn && adminUser ? (
         <div className="twoColRowButtons"> 
           <button className="deleteNewButton" onClick={handleDelete} > Delete </button>
           <button className="editNewButton" id={id} onClick={handleEdit}> Edit </button>

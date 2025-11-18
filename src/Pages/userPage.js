@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProjCard from "../Components/projCard";
 import axios from 'axios';
+import { decryptData } from "../Components/adminEncrypt";
 
 //Todo: restrict front end access to edit acces on userPage. user's shouldnt see the edit buttons or 
 // delete button unless it is their page. The server verifies the user before nay changes are made but 
@@ -23,16 +24,40 @@ export default function UserPage() {
   const [userData, setUserData] = useState("");
   const [account, setAccount] = useState("");
   const [userProjects, setUserProjects] = useState([]);
+  const [adminUser, setAdminUser] = useState(false);
 
   // Retrieve the selected user's ID from sessionStorage
-  useEffect(() => {
-    setSelectedUserId(sessionStorage.getItem("selectedUserId"));
-    setAccount(sessionStorage.getItem("account"));
-    let user = sessionStorage.getItem("account");
-    getSpecificProjects(user);
+    
+
+    // (async () => {
+    //   try {
+    //     const result = await verifyAdminStatus(storedAccount, storedKey);
+    //     setAdminUser(result);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // })();
+
+    //TODO still session, but encrypted, and verify admin everytime doing changes
+    useEffect(() => {
+    const storedUserId = sessionStorage.getItem("selectedUserId");
+    const storedAccount = sessionStorage.getItem("account");
+    const adminEncrypt = sessionStorage.getItem('admin');
+    if (adminEncrypt) {
+      const adminStatus = decryptData(adminEncrypt);
+      setAdminUser(adminStatus === 'true');
+    }
+
+    getSpecificProjects(storedAccount);
+  
+
+    setSelectedUserId(storedUserId);
+    setAccount(storedAccount);
+
   }, []);
 
   // function that gets the user's projects 
+  // TODO: Need to change the logic to be the selected user
   async function getSpecificProjects(user){
     try {
       const response = await axios.post(`api/getUserProjects`, { username: user });
@@ -46,6 +71,9 @@ export default function UserPage() {
   // get the user's id based on their account name 
   useEffect(() => {
     if (account != null) {
+      if (!adminUser && userId !== account) {
+        window.location.href = "/visitorUserPage";
+      }
       const fetchUser = async () => {
         try {
           const response = await axios.post(`api/getUserByName`, { userName: account });
@@ -96,15 +124,39 @@ export default function UserPage() {
   }, [userData])
 
   //allows user to change their account's profile photo 
-  //todo: connect to backend functionality 
-  const handlePictureChange = (event) => {
+  const handlePictureChange = async (event) => {
     const file = event.target.files[0];
     if (file) {
+      // Show a preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setProfilePic(reader.result);
       };
       reader.readAsDataURL(file);
+
+      // Upload the file
+      const formData = new FormData();
+      formData.append('profilePic', file);
+      formData.append('username', account);
+
+      try {
+        const response = await axios.post('/api/uploadProfilePic', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+        
+        if (response.data.status === 'success') {
+          // Set the final URL from Cloudinary
+          setProfilePic(response.data.profilePicUrl);
+          alert("Profile picture updated!");
+        }
+      } catch (error) {
+        console.error("Error uploading profile picture:", error);
+        alert("Failed to upload picture.");
+        // Revert to old picture if upload fails (optional)
+        if (userData.profilepicurl) setProfilePic(userData.profilepicurl);
+      }
     }
   };
 
@@ -119,9 +171,24 @@ export default function UserPage() {
     setSavedClass("");
   };
 
-  const handleSaveDisplayName = () => {
-    setEditMode(false);
-    setSavedClass("saved");
+  const handleSaveDisplayName = async () => {
+    try {
+      const response = await axios.post('/api/editUser', {
+        currentUsername: account,
+        displayName: displayName // Only send the field to update
+      });
+
+      if (response.data.status === 'success') {
+        setEditMode(false);
+        setSavedClass("saved"); // Your saved animation
+        alert("Display name saved!");
+      } else {
+        alert("Failed to save display name: " + response.data.error);
+      }
+    } catch (error) {
+      console.error("Error saving display name:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleShowChangePassword = () => {
@@ -129,23 +196,44 @@ export default function UserPage() {
   };
   
   //password verification 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     const capitalLetterRegex = /[A-Z]/;
     const numberRegex = /[0-9]/;
 
     if (oldPassword && newPassword) {
       if (!capitalLetterRegex.test(newPassword)) {
         setPasswordError("Password must contain at least one capital letter.");
-      } else if (!numberRegex.test(newPassword)) {
-        setPasswordError("Password must contain at least one number");
-      } else {
-        // localStorage.setItem('userPassword', newPassword);
-        alert("Password changed successfully");
-        setOldPassword("");
-        setNewPassword("");
-        setShowChangePassword(false);
-        setPasswordError(""); // Reset error on success
+        return;
       }
+      if (!numberRegex.test(newPassword)) {
+        setPasswordError("Password must contain at least one number");
+        return;
+      }
+
+
+      try {
+        const response = await axios.post('/api/editUser', {
+          currentUsername: account,
+          currentPassword: oldPassword,
+          newPassword: newPassword // Send old and new password
+        });
+
+        if (response.data.status === 'success') {
+          alert("Password changed successfully");
+          // Update the stored key in session storage
+          sessionStorage.setItem('key', newPassword); 
+          setOldPassword("");
+          setNewPassword("");
+          setShowChangePassword(false);
+          setPasswordError(""); // Reset error on success
+        } else {
+          setPasswordError("Failed to change password. Is your old password correct?");
+        }
+      } catch (error) {
+        console.error("Error changing password:", error);
+        setPasswordError("An error occurred. Please try again.");
+      }
+
     } else {
       alert("Please enter both old and new passwords.");
     }
@@ -156,10 +244,24 @@ export default function UserPage() {
     setBioEditMode(true);
   };
 
-  const handleSaveBio = () => {
-    setBio(newBio);
-    setBioEditMode(false);
-    alert("Bio saved successfully");
+  const handleSaveBio = async () => {
+    try {
+      const response = await axios.post('/api/editUser', {
+        currentUsername: account,
+        bio: newBio
+      });
+
+      if (response.data.status === 'success') {
+        setBio(newBio);
+        setBioEditMode(false);
+        alert("Bio saved successfully");
+      } else {
+        alert("Failed to save bio: " + response.data.error);
+      }
+    } catch (error) {
+      console.error("Error saving bio:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   const handleDeleteConfirmation = () => {

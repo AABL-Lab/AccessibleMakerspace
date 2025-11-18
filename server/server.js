@@ -206,9 +206,8 @@ async function validateUser(client, userName, Password, neededID){
     storedPassword = storedPassword.rows[0].password;
     // console.log(storedPassword);
     // console.log(Password);
-    // console.log("Here");
-
-    // console.log(storedPassword);
+    Password = Password.trim();
+    storedPassword = storedPassword.trim();
     if (Password == storedPassword || await bcrypt.compare(Password, storedPassword)){
       // console.log("Here");
       if (neededID != undefined){
@@ -238,34 +237,36 @@ async function validateUser(client, userName, Password, neededID){
 async function connect() {
   console.log("Connection Function Started");
   const client = new Client({
-    host: 'ec2-3-218-243-246.compute-1.amazonaws.com',
+    host: 'cb6d9bqd303o1l.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com',
     port: 5432,
-    user: 'hglurgefpcidex',
-    password: '0211ccea126ef7b0ed0c1d3849a5e65b56d16d7b07ce413bf2d179e94b8e7345',
-    database: 'd7v5katklfeaf7',
-    // connectionString: "dbname=d7v5katklfeaf7 host=ec2-3-218-243-246.compute-1.amazonaws.com port=5432 user=hglurgefpcidex password=0211ccea126ef7b0ed0c1d3849a5e65b56d16d7b07ce413bf2d179e94b8e7345 sslmode=require",
-    ssl:{
+    user: 'u2at07d72nh951',
+    password: 'p4692b2ff0affa7293a60cf873ad33b8f2e57c1f2a54356f5ee2c26586508b003',
+    database: 'da725tikbjen67',
+    ssl: {
       rejectUnauthorized: false
     }
   });
 
   let fail = true;
   let timeout = 1000;
-  while(fail == true){
-    try{
-      console.log("Attempting to Connect")
+  
+  while (fail) {
+    try {
+      console.log("Attempting to Connect");
       await client.connect();
-      console.log("Connected")
+      console.log("Connected");
       fail = false;
-    }
-    catch(err){
-      console.log("Connection Failed with Error: " + err);
-      fail = false;
-      setTimeout(() => {console.log("Waiting " + timeout + "ms"), timeout});
-      timeout = timeout * 2
+    } catch (err) {
+      console.log("Connection Failed with Error: " + err.message);
+      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      
+      console.log("Waiting " + timeout + "ms before retrying...");
+      await wait(timeout);
+      
+      timeout = timeout * 2;
     }
   }
-  
+
   console.log("Connection Established");
   return client;
 }
@@ -367,4 +368,4 @@ async function main(){
 
 // main();
 
-module.exports = {connect, filter_content, validateUser, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, getGlobalTags};
+module.exports = {connect, filter_content, validateUser, validateAdmin, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, getGlobalTags};
