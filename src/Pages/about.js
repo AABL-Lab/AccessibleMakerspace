@@ -51,7 +51,7 @@ export default function About() {
         </div>
       </div>
       <div id="aboutImg">
-        <img src="images/robot_new.jpg" alt="A robot standing up" />
+        <img src="images/handwashing.png" alt="A black and white sketch of a woman sitting in a wheelchair with long braided hair. She is washing her hands at a sink, chair sideways to the sink, using a DIY handle adaptor to adjust the faucet handles." />
       </div>
     </div>
   );
