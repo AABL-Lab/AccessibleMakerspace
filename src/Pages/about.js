@@ -9,6 +9,7 @@ import missionStatement from "./Text/missionStatement.txt";
 export default function About() {
   // Declare a state variable called text and a function to update it using useState hook.
   const [text, setText] = useState('');
+  const [text2, setText] = useState('');
   const [missiontext, setSecondText] = useState('');
 
   // Use fetch method to get data from the aboutUs file.
