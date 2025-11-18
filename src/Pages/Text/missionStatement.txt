@@ -1,1 +1,25 @@
-The CEEO is an interdisciplinary center dedicated to creating the next generation of problem solvers, kindergarten through college, through engineering education.  Working to bridge the divide between research and practice, Tufts CEEO’s outreach team works to transform research into programs and resources that can be used by stakeholders and provide continuous feedback to researchers.   Learn more about the CEEO at their website (linked with the button below)
+Welcome to our Beta site for the Accessible Accessibility Makerspace!
+
+We are developing a hybrid maker space community, focused on the needs of people who encounter accessibility challenges in their day-to-day lives.  We believe that the best team to solve accessibility problems is one where disabled people and others who needs access* are centered — not just as a client but as the primary designer and builder of the system. This means providing accessible tools and tutorials for interested people to learn how to create their own solutions, or for them to team with others with complementary skills.
+
+We are focused on the following principles as guidance for our design: 
+Solidarity not Service
+Enabling people to use skills they have and develop new ones
+The people closest to the problem have the most insight into useful solutions
+Organic space in which to form teams based on complementary abilities
+
+Everyone brings skills, and Everyone has access needs
+Shop talks by inventors and makers about their personal accessibility projects
+Tutorials for the tools used in the shop talk projects and links to existing resources
+Tagging and Search by tools and skill level 
+
+Hybrid by Design is also an Accessibility Tool 
+Live hackathon sessions will feed back into the online community 
+Hackathons will be intentionally hybrid for geographic and physical accessibility
+Hackathons will use a more relaxed timeline than traditional hackathons, to allow for the participation of people
+ who might be excluded from “work all weekend in person” style hackathons
+
+This website is part of a participatory design process, where we began with “lessons learned” from existing and past makerspace and hackathon projects,
+ and are building on those with frequent feedback from the participating community and interested parties.
+
+* We recognize “people who need access”, in addition to people who identify as disabled, to recognize that accessibility assistance is universal - many people who do not identify as disabled might have barriers (whether physical, social, cultural, racial, socioeconomic, or other) which limit their access.  We furthermore want to emphasize that tools developed for and by people who identify as disabled in one arena can be useful to people with other disabilities or outside the disabled community, and to encourage solidarity among all who experience limitations in their daily lives.
