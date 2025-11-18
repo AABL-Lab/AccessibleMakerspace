@@ -32,7 +32,7 @@ export default function About() {
       // Use then method to handle the resolved promise and get the text content.
       .then(text => {
         // Use setText function to update the text state variable with the text content.
-        setText(text);
+        setText2(text2);
       });
     // Use empty array as the second argument to useEffect to run the effect only once.
   }, []);
@@ -55,6 +55,7 @@ export default function About() {
           <a href="https://aabl.cs.tufts.edu/" target="_blank"> 
             <button type="button">Learn More: AABL</button>
           </a>
+          <p>{text2}</p>
           <a href="https://www.ceeoinnovations.org/fetlab/" target="_blank">
             <button type="button">Learn More: CEEO</button>
           </a>
