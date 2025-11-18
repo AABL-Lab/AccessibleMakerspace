@@ -13,58 +13,47 @@ export default function About() {
   const [missiontext, setSecondText] = useState('');
 
   // Use fetch method to get data from the aboutUs file.
-  useEffect(() => {
-    fetch(aboutAABL)
-      // Use then method to handle the resolved promise and get the response object
-      .then(r => r.text())
-      // Use then method to handle the resolved promise and get the text content.
-      .then(text => {
-        // Use setText function to update the text state variable with the text content.
-        setText(text);
-      });
-    // Use empty array as the second argument to useEffect to run the effect only once.
-  }, []);
-
-    // Use fetch method to get data from the aboutUs file.
-  useEffect(() => {
-    fetch(aboutCEEO)
-      // Use then method to handle the resolved promise and get the response object
-      .then(r => r.text())
-      // Use then method to handle the resolved promise and get the text content.
-      .then(text => {
-        // Use setText function to update the text state variable with the text content.
-        setText2(text2);
-      });
-    // Use empty array as the second argument to useEffect to run the effect only once.
-  }, []);
-
-  useEffect(() => {
-    fetch(missionStatement)
-      .then(r => r.text())
-      .then(missiontext => {
-        setSecondText(missiontext);
-      });
-  }, []);
+useEffect(() => {
+  const loadTexts = async () => {
+    try {
+      const [aabl, ceeo, mission] = await Promise.all([
+        fetch(aboutAABL).then(r => r.text()),
+        fetch(aboutCEEO).then(r => r.text()),
+        fetch(missionStatement).then(r => r.text())
+      ]);
+      
+      setText(aabl);
+      setText2(ceeo);
+      setSecondText(mission);
+    } catch (error) {
+      console.error('Error loading text files:', error);
+    }
+  };
+  
+  loadTexts();
+}, []);
 
   return (
     <div id="about-columns">
       <div>
-        <div id="about">
+        <div id="aboutAABL">
           <h1>About Us</h1>
           <p>{text}</p>
           {/* both buttons are connected to their relevant outside website*/}
-          <a href="https://aabl.cs.tufts.edu/" target="_blank"> 
+          <a href="https://aabl.cs.tufts.edu/" target="_blank" rel="noopener noreferrer"> 
             <button type="button">Learn More: AABL</button>
           </a>
+          </div>
+          <div id="aboutCEEO">
           <p>{text2}</p>
-          <a href="https://www.ceeoinnovations.org/fetlab/" target="_blank">
+          <a href="https://www.ceeoinnovations.org/fetlab/" target="_blank" rel="noopener noreferrer">
             <button type="button">Learn More: CEEO</button>
           </a>
         </div>
-        <div id="about2">
-          <h1>Our Mission</h1>
-          <p>{missiontext}</p>
-        </div>
+<div id="missionstatement">
+  <h1>Our Mission</h1>
+  <div dangerouslySetInnerHTML={{ __html: missiontext }} />
+</div>
       </div>
       <div id="aboutImg">
         <img src="images/handwashing.png" alt="A black and white sketch of a woman sitting in a wheelchair with long braided hair. She is washing her hands at a sink, chair sideways to the sink, using a DIY handle adaptor to adjust the faucet handles." />

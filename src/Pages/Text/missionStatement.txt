@@ -1,25 +1,32 @@
-Welcome to our Beta site for the Accessible Accessibility Makerspace!
+<h2>Welcome to our Beta site for the Accessible Accessibility Makerspace!</h2>
 
-We are developing a hybrid maker space community, focused on the needs of people who encounter accessibility challenges in their day-to-day lives.  We believe that the best team to solve accessibility problems is one where disabled people and others who needs access* are centered — not just as a client but as the primary designer and builder of the system. This means providing accessible tools and tutorials for interested people to learn how to create their own solutions, or for them to team with others with complementary skills.
+<p>We are developing a hybrid maker space community, focused on the needs of people who encounter accessibility challenges in their day-to-day lives.  We believe that the best team to solve accessibility problems is one where disabled people and others who needs access* are centered — not just as a client but as the primary designer and builder of the system. This means providing accessible tools and tutorials for interested people to learn how to create their own solutions, or for them to team with others with complementary skills.</p>
 
-We are focused on the following principles as guidance for our design: 
-Solidarity not Service
-Enabling people to use skills they have and develop new ones
-The people closest to the problem have the most insight into useful solutions
-Organic space in which to form teams based on complementary abilities
+<p>We are focused on the following principles as guidance for our design:</p> 
 
-Everyone brings skills, and Everyone has access needs
-Shop talks by inventors and makers about their personal accessibility projects
-Tutorials for the tools used in the shop talk projects and links to existing resources
-Tagging and Search by tools and skill level 
+<h3>Solidarity not Service</h3>
+<ul>
+<li> Enabling people to use skills they have and develop new ones </li>
+<li> The people closest to the problem have the most insight into useful solutions  </li>
+<li> Organic space in which to form teams based on complementary abilities </li>
+</ul>
 
-Hybrid by Design is also an Accessibility Tool 
-Live hackathon sessions will feed back into the online community 
-Hackathons will be intentionally hybrid for geographic and physical accessibility
-Hackathons will use a more relaxed timeline than traditional hackathons, to allow for the participation of people
- who might be excluded from “work all weekend in person” style hackathons
+<h3>Everyone brings skills, and Everyone has access needs</h3>
+<ul>
+<li> Shop talks by inventors and makers about their personal accessibility projects  </li>
+<li> Tutorials for the tools used in the shop talk projects and links to existing resources </li>
+<li> Tagging and Search by tools and skill level  </li>
+</ul>
 
-This website is part of a participatory design process, where we began with “lessons learned” from existing and past makerspace and hackathon projects,
- and are building on those with frequent feedback from the participating community and interested parties.
+<h3>Hybrid by Design is also an Accessibility Tool </h3>
+<ul>
+<li> Live hackathon sessions will feed back into the online community  </li>
+<li> Hackathons will be intentionally hybrid for geographic and physical accessibility  </li>
+<li> Hackathons will use a more relaxed timeline than traditional hackathons, to allow for the participation of people
+ who might be excluded from “work all weekend in person” style hackathons  </li>
+ </ul>
 
-* We recognize “people who need access”, in addition to people who identify as disabled, to recognize that accessibility assistance is universal - many people who do not identify as disabled might have barriers (whether physical, social, cultural, racial, socioeconomic, or other) which limit their access.  We furthermore want to emphasize that tools developed for and by people who identify as disabled in one arena can be useful to people with other disabilities or outside the disabled community, and to encourage solidarity among all who experience limitations in their daily lives.
+<p> This website is part of a participatory design process, where we began with “lessons learned” from existing and past makerspace and hackathon projects,
+ and are building on those with frequent feedback from the participating community and interested parties.</p>
+
+<p>* We recognize “people who need access”, in addition to people who identify as disabled, to recognize that accessibility assistance is universal - many people who do not identify as disabled might have barriers (whether physical, social, cultural, racial, socioeconomic, or other) which limit their access.  We furthermore want to emphasize that tools developed for and by people who identify as disabled in one arena can be useful to people with other disabilities or outside the disabled community, and to encourage solidarity among all who experience limitations in their daily lives.</p>
