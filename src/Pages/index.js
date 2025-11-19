@@ -23,7 +23,7 @@ const [indexText, setText] = useState ('');
           <div class="landing-page-container">
             <div class="landing-page-content">
               <div class="landing-page-text">
-                <h1>Welcome to the A2 Makerspace!</h1> 
+                <h1>Welcome to the BETA page for the A2 Makerspace!</h1> 
                 <br/>
                 <p>{indexText}</p>
                 <div class="about-button-container">
