@@ -1,0 +1,5 @@
+- add acknowledgement for Jason's pictures
+- add credits for all images used
+- add credits for team members who worked on website
+- add example projects that are real things
+- add BETA to front page somewhere

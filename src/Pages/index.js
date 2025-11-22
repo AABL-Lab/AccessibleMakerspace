@@ -23,7 +23,7 @@ const [indexText, setText] = useState ('');
           <div class="landing-page-container">
             <div class="landing-page-content">
               <div class="landing-page-text">
-                <h1>Welcome to the A2 Makerspace!</h1> 
+                <h1>Welcome to the BETA page for the A2 Makerspace!</h1> 
                 <br/>
                 <p>{indexText}</p>
                 <div class="about-button-container">
@@ -31,7 +31,7 @@ const [indexText, setText] = useState ('');
                 </div>
               </div>
               <div>
-                <img src="images/cover-image.svg" alt="People Building" width="800"/>
+                <img src="images/gocart.png" alt="Greyscale sketch of a woman with curly hair in double buns, large sunglasses, and a Hawaiian-printed matched open shirt, crop-top, and skirt outfit drives a 4-wheeled buggy with visible joins and tubing, with large puffy tires,  on the sand. A large striped umbrella mounted on the buggy shades her from the sun. " width="800"/>
               </div>
             </div>
           </div>
