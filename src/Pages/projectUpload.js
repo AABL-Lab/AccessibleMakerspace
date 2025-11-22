@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import FilterableDropdown from "../Components/FilterableDropdown";
 import axios from "axios";
 import { decryptData } from "../Components/adminEncrypt";
-import fetch from "node-fetch"
 
 // Server call to get the general list for Tags & Skills
 async function getTagSkills(){
@@ -15,35 +14,33 @@ async function getTagSkills(){
   }
 };
 
-// SuppliesContent is a component (with its own return) that store the added supplies and creates the table
+// SuppliesContent Component
 const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, setItems }) => {
   const handleAddButtonClick = (event) => { 
     if (quantity > 0 && itemName.trim() !== '') {
-      // Create a new item object
       const newItem = {
         quantity: quantity,
         itemName: itemName
       };
-  
-      // Update the items state with the new item
       setItems(prevItems => [...prevItems, newItem]);
-  
-      // Clear input fields after adding
       setQuantity(0);
       setItemName('');
     }
   }; 
 
+  // Function to remove a supply item
+const handleDeleteSupply = (indexToRemove) => {
+  setItems(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
+};
+
   return (
     <>
-    {/* TODO: ask Manpreet ot add back increment */}
-    {/*This is the entire design for the div box and supplies.*/}
-    <div class="center-headings">
+    <div className="center-headings">
       <h2>Supplies:</h2>
       <h5> Please enter each item as a separate entry. </h5>
     </div>
-    <div class="supplies-container">
-      <div class="input-container">
+    <div className="supplies-container">
+      <div className="input-container">
         <input
           type="number"
           min="0"
@@ -51,7 +48,6 @@ const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, s
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
         />
-         {/*Input box and button functiionality*/}
         <textarea
           id="input"
           name="input"
@@ -59,13 +55,12 @@ const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, s
           value={itemName}
           onChange={(e) => setItemName(e.target.value)}
         />
-        <button class="add-button" onClick={handleAddButtonClick}>Add</button>
+        <button className="add-button" onClick={handleAddButtonClick}>Add</button>
       </div>
     </div>
         
-    {/* Display the items in a table */}
     {items.length > 0 && (
-    <div class="table-style">
+    <div className="table-style">
       <table>
         <thead>
           <tr>
@@ -74,11 +69,18 @@ const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, s
           </tr>
         </thead>
         <tbody>
-          {/* limits items to five rows item.map*/}
           {items.slice(0, 5).map((item, index) => (
             <tr key={index}>
               <td>{item.quantity}</td>
               <td>{item.itemName}</td>
+              <td>
+                  <button 
+                    onClick={() => handleDeleteSupply(index)}
+                    style={{color: 'red', cursor: 'pointer', border: 'none', background: 'transparent'}}
+                  >
+                    X
+                  </button>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -89,12 +91,11 @@ const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, s
   );
 }; 
 
-// SkillsContent is a function that calls the FilterableDropdown component
-// allowing the users to select from a premade list of skills/tags and/or add their own
+// SkillsContent Component
 function SkillsContent({list, skills, setSkills}) {
   return (
     <>
-      <div class = "center-headings">
+      <div className="center-headings">
         <h2>Skills:</h2>
         <h5> Please limit to 5 skills. </h5>
       </div>
@@ -105,12 +106,11 @@ function SkillsContent({list, skills, setSkills}) {
   );
 };
 
-// RelevantTagsContent is a function that calls the FilterableDropdown component
-//  allowing the users to select from a premade list of skills/tags and/or add their own
+// RelevantTagsContent Component
 function RelevantTagsContent({list, typedTag, setTypedTag}){
   return (
     <>
-      <div class = "center-headings">
+      <div className="center-headings">
         <h2>Select Relevant Tags:</h2>
         <h5> Please limit to 5 tags. </h5>
       </div>
@@ -120,10 +120,9 @@ function RelevantTagsContent({list, typedTag, setTypedTag}){
 };
 
 
-//Main Function that displays all components of the Upload project form 
+// Main Function
 export default function Home(){ 
   const [generalList, setGeneralList] = useState([]);
-  const [numImages, setNumImages] = useState(0);
   const [projImages, setProjImages] = useState([]);
   const [title, setTitle] = useState("");
   const [id, setProjID] = useState("");
@@ -138,14 +137,17 @@ export default function Home(){
   const [items, setItems] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  
   const [possibleErrors, setPossibleErrors] = useState({
     incompleteForm: false,
+    missingAltText: false
   });
+  
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
     projid: '', 
     videourl: '', 
-    aslurl: '', //add that edit feature only for admins!
+    aslurl: '', 
     title: '',
     description: '',
     skills: [],
@@ -153,7 +155,6 @@ export default function Home(){
     tags: [],
   });
 
-  //on page load, get the skills/tags list, check if in editing mode, 
   useEffect(() => {
     getTagSkills()
       .then(data => {
@@ -169,59 +170,115 @@ export default function Home(){
       setAdminUser(adminStatus === 'true');
     }
 
-    //if in editing mpde the fill the form with the clicked project's stored information
     if(editing){ 
       setEditMode(editing);
       preFillForm();
     }
-    //clear values if user leaves page
     return () => {
       clearValues();
     }
   }, []);
 
-  //get the project's data from the server to prefill form in editing mode
+  const urlToBase64 = async (url) => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error("Error converting image to base64:", error);
+    return null;
+  }
+};
+
   const preFillForm = async () => {
     const projid = sessionStorage.getItem('EditingID');
     setProjID(sessionStorage.getItem('EditingID'));
     try {
       const response = await axios.post('/api/project', {id: projid});
       setFormData(response.data);
+
+      const imgResponse = await axios.post('/api/data', {id: "id" + projid});
+      if (imgResponse.data && Array.isArray(imgResponse.data)) {
+          const imagePromises = imgResponse.data.map(async (img) => {
+              const base64Data = await urlToBase64(img.url);
+              return {
+                  file: null,
+                  base64: base64Data || img.url,
+                  previewUrl: img.url,
+                  altText: img.alt || ""
+              };
+          });
+
+          const loadedImages = await Promise.all(imagePromises);
+          setProjImages(loadedImages);
+      }
     } catch (err) {
       console.log("Error editing project: " + err);
     } 
   }
   
-  //store the user credentials in order to later verify editing capabilities
   useEffect(() => { 
     setUsername(sessionStorage.getItem('account'));
     setPassword(sessionStorage.getItem('key'));
   },[username,password]);
 
 
-  //once the project's data is recieved from server, fill in the appropriate variables 
   useEffect(() => {
     setTitle(formData.title || "");
     setProjVideo(formData.videourl || "");
     setAslVideo(formData.aslurl || "");
     setProjDesc(formData.description || "");
-    setSkills(formData.skills || []);
-    console.log("skills projectUpload");
-    console.log("formData.skills", formData.skills);
-    setItems(formData.supplies || []);
     setTypedTag(formData.tags || []);
+
+    if(formData.tags && Array.isArray(formData.tags)){
+        const formattedTags = formData.tags.map(t => {
+            if(Array.isArray(t)){
+                return t[0]; 
+            }
+            if(typeof t === 'object' && t !== null && t.tagName){
+                return t.tagName;
+            }
+            return t;
+        });
+        setTypedTag(formattedTags);
+    } else {
+        setTypedTag([]);
+    }
+
+    if(formData.skills && Array.isArray(formData.skills)){
+       const formattedSkills = formData.skills.map(s => {
+           if(Array.isArray(s)){
+               return { skill: s[0], skillLevel: s[1] || "Beginner" };
+           }
+           return s;
+       });
+       setSkills(formattedSkills);
+    } else {
+       setSkills([]);
+    }
+
+    if(formData.supplies && Array.isArray(formData.supplies)){
+        const formattedSupplies = formData.supplies.map(s => {
+            if(Array.isArray(s)){
+                return { quantity: s[0], itemName: s[1] };
+            }
+            return s;
+        });
+        setItems(formattedSupplies);
+    } else {
+        setItems([]);
+    }
+
   },[formData]);
   
-  //function processes the uploaded images, and properly formats them for sending
   const handleFileUpload = (event) => {
-    const files = event.target.files; // Get the selected files
-    const fileList = Array.from(files); // Converting files to an array
-
-    for (let i = 0; i < fileList.length; i++){
-      console.log("Type of File: " + typeof fileList[i])
-      console.log(fileList[i] instanceof Blob)
-      console.log(fileList[i] instanceof ArrayBuffer)
-    }
+    const files = event.target.files; 
+    const fileList = Array.from(files); 
 
     const readFileAsBase64 = (file) => {
       return new Promise((resolve, reject) => {
@@ -230,80 +287,51 @@ export default function Home(){
           resolve(reader.result)
         }
         reader.onerror = reject;
-        console.log("File Type: " + typeof file)
         reader.readAsDataURL(file)
-        // return reader.result;
       })
     }
     
     Promise.all(fileList.map(image => readFileAsBase64(image))).then(base64Strings => {
+      // Store objects with explicit Alt Text fields
       const updatedImages = fileList.map((file, index) => ({
         file: file,
-        description: '', // Initialize description to empty string
-        previewUrl: URL.createObjectURL(file), // Create a preview URL for each image
-        base64: base64Strings[index] // Assign the corresponding Base64 string
+        altText: '', // Initialize empty alt text
+        previewUrl: URL.createObjectURL(file), 
+        base64: base64Strings[index] 
       }));
-      const formData = new FormData();
-      updatedImages.forEach((image, index) => {
-          formData.append(`file${index}`, image.base64); // Append each file to FormData
-      });
-  
-      // console.log("Form Data: ", formData)
-      console.log("formData: ")
-      for (let pair of formData.entries()){
-        console.log(pair[0],pair[1])
-      }
-      setProjImages(prevImages => [...prevImages, ...formData]);
+      
+      setProjImages(prevImages => [...prevImages, ...updatedImages]);
 
     }).catch(error => {
       console.log("Error with getting Images: " + error)
     })
-    
-    // file: image,
-    // description: '', // Initialize description to empty string
-    // previewUrl: URL.createObjectURL(image), // Create a preview URL for each image
-    // base64: readFileAsBase64(image)
-    
-    
-    // Adding the new files to the existing projImages array
-    // setProjImages(prevImages => [...prevImages, ...updatedImages]);
-
   };
 
-  //on submit, uploaded images to the backend & send the user's project data to the backend
-  const handleSubmit = async () => {
-    checkCompleteness();
+  const handleRemoveImage = (indexToRemove) => {
+    setProjImages(prevImages => prevImages.filter((_, index) => index !== indexToRemove));
+  };
+
+  const handleAltTextChange = (index, value) => {
+    const updatedImages = [...projImages];
+    updatedImages[index].altText = value;
     
-    console.log("incompleteForm: ", possibleErrors.incompleteForm);
+    if(possibleErrors.missingAltText){
+         setPossibleErrors(prevState => ({
+        ...prevState,
+        missingAltText: false
+      }));
+    }
+    setProjImages(updatedImages);
+  };
+
+  const handleSubmit = async () => {
+    
+    // Run validation first
+    if(checkCompleteness()) {
+      return; // Stop if validation fails
+    }
 
     try{
-      console.log("Project Images")
-      console.log(projImages)
-      if (Array.isArray(projImages)){
-        console.log("We are of type array")
-      }
-      else {
-        console.log("We are not of type array")
-      }
-
-      let Images = new FormData();
-      for (let i = 0; i < projImages.length; i++){
-        console.log(projImages[i][0], projImages[i][1])
-        Images.append('images', projImages[i][1])
-      }
-
-      if (Images instanceof FormData){
-        console.log("We are of type form data")
-      }
-      else {
-        console.log("We are not of type form data")
-      }
-
-      console.log("Images: ")
-      for (let pair of Images.entries()){
-        console.log(pair[0], pair[1])
-      }
-  
       const response = await axios.post('/api/createProject', {
         userName: username, 
         password: password, title:title, description:projDesc, 
@@ -311,9 +339,13 @@ export default function Home(){
         supplies:items, skill:skills, tags:typedTag 
       });
 
-      console.log("Responce Data: " + response.data);
       let project = response.data;
-      console.log(parseInt(project));
+      
+      let Images = new FormData();
+      for (let i = 0; i < projImages.length; i++){
+        Images.append('images', projImages[i].base64);
+        Images.append('altTexts', projImages[i].altText);
+      }
 
       Images.append('username', username)
       Images.append('password', password)
@@ -322,45 +354,43 @@ export default function Home(){
       const config = {headers: {'Content-Type': 'multipart/form-data'}}
       const fetchResponce = await axios.post( '/api/uploadImage', Images, config)
       console.log("Fetch responce: " + fetchResponce.data)
-      console.log("Project Sent");
-
-      // console.log("Fetch Responce" + response.data)
       
       setTimeout(function() {
         window.location.href = "/projects";
       }, 500);
-      // return response.data;
     }
     catch (err){
       console.log("Error submitting project: " + err);
     }
   };
 
-  //error checking function that ensure all required parts of the form is there
+  
   function checkCompleteness(){
-    console.log("submiting form");
-    console.log("title: ", title);
-    console.log("projDesc: ", projDesc);
-    console.log("numImages: ", numImages);
-    console.log("skills: ", skills);
-    console.log("typedTag: ", typedTag);
-    console.log("supplies: ", items);
-    console.log("images: ", projImages);
-    console.log(username, password); 
-    console.log("done");
-
-    // Error handling for incomplete form submittions 
+    let hasError = false;
+    
+    // Check basic fields
     if( title === '' || projDesc === '' || projImages.length === 0 || 
       skills.length === 0 || typedTag.length === 0 || items.length === 0){
         setPossibleErrors(prevState => ({
           ...prevState,
           incompleteForm: true
         }));
-      return;
+        hasError = true;
     }
+
+    // Check for missing Alt Text
+    const hasMissingAlt = projImages.some(img => !img.altText || img.altText.trim() === '');
+    if (hasMissingAlt) {
+      setPossibleErrors(prevState => ({
+        ...prevState,
+        missingAltText: true
+      }));
+      hasError = true;
+    }
+
+    return hasError;
   };
 
-  //when an error occures, if user is changing the value to resolve issue then error message hides
   const handleChange = (event) => {
     event.preventDefault();
     if(possibleErrors.incompleteForm){
@@ -368,25 +398,37 @@ export default function Home(){
         ...prevState,
         incompleteForm: false
       }));
-      console.log("incompleteForm: ", possibleErrors.incompleteForm);
     }
   };
 
-  //Function that updates the projects' information in editing mode
+
   async function handleUpdate(){
-    console.log("updating");
-    checkCompleteness();
+    if(checkCompleteness()) return;
     try{
-      console.log("about to call server");
+      let projid = id.replace(/^id/i, '');
       let response = await axios.post("/api/editProject", {
-        username: username, password: password, projid:Number(id), 
+        username: username, password: password, projid: Number(projid), 
         title:title, description:projDesc, 
-        videoURL:projVideo, aslURL:aslVideo, projImages:projImages,
-        supplies:items, skill:skills, tags:typedTag 
+        videoURL:projVideo, aslURL:aslVideo, supplies:items, skill:skills, tags:typedTag 
       });
-      console.log(response.data);
+
       if(response.data){
-        window.location.href = "/project";
+        let Images = new FormData();
+        for (let i = 0; i < projImages.length; i++){
+          Images.append('images', projImages[i].base64);
+          Images.append('altTexts', projImages[i].altText);
+        }
+
+        // Add auth and ID to FormData
+        Images.append('username', username);
+        Images.append('password', password);
+        Images.append('projid', Number(projid));
+
+        const config = {headers: {'Content-Type': 'multipart/form-data'}};
+        await axios.post('/api/replaceImages', Images, config);
+
+        // Redirect after success
+        window.location.href = "/projects";
       }else{
         alert("could not edit project");
       }
@@ -395,7 +437,6 @@ export default function Home(){
     }
   }
 
-  //call on page leave or update submission to clean up prefill values 
   function clearValues(){
     sessionStorage.removeItem('Editing');
     sessionStorage.removeItem('EditingID');
@@ -413,85 +454,108 @@ export default function Home(){
 
   return( 
     <>  
-      {/*  error code messaging */}
+      {possibleErrors.missingAltText && (
+        <div className="incompleteForm" style={{
+            backgroundColor: "#ffebee", 
+            color: "#c62828", 
+            padding: "15px", 
+            border: "1px solid #c62828",
+            marginBottom: "20px",
+            borderRadius: "5px",
+            textAlign: "center"
+        }}> 
+          <h2> Accessibility Error: Every uploaded image must have an Alt Text description. </h2>
+        </div>
+      )}
+      
       {possibleErrors.incompleteForm ? (
-        <div class="incompleteForm"> 
+        <div className="incompleteForm"> 
           <h2> Please make sure you fill out all the fields in the form before 
           uploading your project. Adding a video is optional. </h2>
         </div>):(
       <div></div>)}
-      {/* Container for the main grid */}
-      <div class="grid-container">
-        {/* Container for the project title */}
-        <div class="grid-project-title-container">
-          <div class ="project-title">
+
+      <div className="grid-container">
+        <div className="grid-project-title-container">
+          <div className ="project-title">
             <h2>Project Title: </h2>
-            {/* Textarea for the user to enter the project title */}
             <input id="project-title-input" value={title} onChange={(e) => setTitle(e.target.value)}  />
           </div>
         </div>
 
-        {/* Container for the project description - TODO: add to server for storage */}
-        <div class="grid-item description-container">
-          <div class ="description">
+        <div className="grid-item description-container">
+          <div className ="description">
             <h2>Description: </h2>
             <textarea id="description" value={projDesc} onChange={(e) => setProjDesc(e.target.value)} ></textarea>
           </div>
         </div>  
-        {/* Container for aligning the image and video upload sections */}
-        <div class="alignment">
-          {/* Container for the image upload */}
-          <div class="grid-item image-container">
-            <div class="image-upload">
-            {/* Heading for uploading image*/}
+        
+        <div className="alignment">
+          <div className="grid-item image-container">
+            <div className="image-upload">
               <h2>Upload Image:</h2>
-
-              {/* Input for selecting multiple image files */}
               <input type="file" id="image" className="uploadImage" accept=".jpg, .png, .jpeg" multiple required onChange={handleFileUpload}></input>
               
-              {/* <h2>Image Description:</h2> */}
-              {/* Display div and input for each image */}
               {projImages.map((image, index) => (
-                <div key={index}>
-                  {/* Image preview if needed */}
-                  {/* <img style={{width:"80px", paddingRight:"5px", paddingBottom:"8px"}} src={URL.createObjectURL(image.file)} alt={`Image ${index}`} /> */}
-                  {projImages.map((image, index) => (
-                      <img key={index} style={{width:"80px", paddingRight:"5px", paddingBottom:"8px"}} src={image.previewUrl} alt={`Image ${index}`} />
-                  ))}
-
-                  {/* Optional TODO: can implement image describtions to be used for alt text if images dont show.
-                  However, server does not currently have a column to store this so that will need to be changed first.*/}
-                  {/* Input for image description */} 
-                  {/* <div className="imageTextDiv">
-                    <textarea
-                      type="text"
-                      value={image.description}
-                      onChange={(e) => {
-                        const updatedImages = [...projImages];
-                        updatedImages[index].description = e.target.value;
-                        setProjImages(updatedImages);
-                      }}
-                      className="textarea-design"
-                      placeholder="Enter description"
-                    >
-                    </textarea>
-                  </div> */}
+                <div key={index} style={{
+                    marginBottom: "15px", 
+                    border: (possibleErrors.missingAltText && !image.altText) ? "2px solid #c62828" : "1px solid #ddd",
+                    padding: "10px",
+                    borderRadius: "4px"
+                }}>
+                  <div style={{display: "flex", alignItems: "flex-start"}}>
+                      <img 
+                        style={{width:"80px", height: "auto", marginRight:"15px"}} 
+                        src={image.previewUrl} 
+                        alt={`Preview ${index}`} 
+                      />
+                      <div style={{width: "100%"}}>
+                        <div style={{display: "flex", justifyContent: "space-between", marginBottom: "5px"}}>
+                            <label style={{display: "block", fontWeight: "bold", fontSize: "0.9em"}}>
+                               Alt Text (Required for Accessibility):
+                            </label>
+                            <button 
+                                onClick={() => handleRemoveImage(index)}
+                                style={{
+                                    color: 'white', 
+                                    backgroundColor: '#d9534f',
+                                    border: 'none', 
+                                    borderRadius: '4px',
+                                    padding: '2px 8px',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                Remove Image
+                            </button>
+                        </div>
+                        <textarea
+                          type="text"
+                          value={image.altText}
+                          onChange={(e) => handleAltTextChange(index, e.target.value)}
+                          className="textarea-design"
+                          placeholder="Describe this image for screen readers..."
+                          style={{
+                              width: "100%",
+                              padding: "5px",
+                              minHeight: "50px"
+                          }}
+                        />
+                      </div>
+                  </div>
                 </div>
               ))}
+
             </div>
           </div>
 
-          {/* Container for the video upload section*/}
-          <div class="grid-item video-container">
-            <div class="video-upload"> 
+          <div className="grid-item video-container">
+            <div className="video-upload"> 
               <h2>Upload Video:</h2>
-              {/* Input for entering video URLs, mainly from YouTube */}
               <input type="url" id ="url" name="url" value={projVideo} onChange={(e) => setProjVideo(e.target.value)}></input>
               <h2>Video Description:</h2>
-              {/* Textarea for entering video descriptions */}
               <textarea id="video-description" name="video-description" rows="3" placeholder="Enter video description"></textarea>
               <h2 style={{marginTop: '15px'}}>Upload ASL Video:</h2>
-              {/* Input for entering ASL video URLs */}
               <input 
                 type="url" 
                 id ="asl-url" 
@@ -505,7 +569,6 @@ export default function Home(){
           </div>
         </div>
 
-        {/* Refers to the above components. */}
         <SuppliesContent quantity={quantity} setQuantity={setQuantity} 
           itemName={itemName} setItemName={setItemName} items={items}
           setItems={setItems}
@@ -515,15 +578,14 @@ export default function Home(){
           setTypedTag={setTypedTag}
         /> 
       
-        {/* Submit button.*/}
-        <div class="grid-item submit"> 
+        <div className="grid-item submit"> 
           {editMode ? ( 
             <div>
-              <button class="submit-button" onClick={handleUpdate}>Update</button>
+              <button className="submit-button" onClick={handleUpdate}>Update</button>
             </div>
           ):(
             <div>
-               <button class="submit-button" onClick={handleSubmit}>Submit</button>
+               <button className="submit-button" onClick={handleSubmit}>Submit</button>
             </div>
           )}
         </div>
@@ -531,4 +593,3 @@ export default function Home(){
     </>
   );
 }
-

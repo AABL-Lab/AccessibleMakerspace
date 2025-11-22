@@ -36,49 +36,33 @@ async function searchByFolder(id){
   try {
     const result = await cloudinary.search
       .expression(`folder=${id}`)
+      .with_field('context') // UPDATED: Request metadata (alt text)
       .max_results(30)
       .execute()
     console.log("Cloudinary Search Results: " + result);
-    const urls = processJsonResults(result);
-    console.log("URLS: " + urls);
-    return urls;
+    const processedImages = processJsonResults(result);
+    return processedImages;
   }catch (error) {
     console.error('Error:', error);
     return []
   }
 }
 
-async function uploadImage(images, projID){
+async function uploadImage(images, altTexts, projID){
   console.log("Upload image to Cloudinary API");
   console.log("projID: ", projID);
-  // console.log("images: ",images);
-  // console.log("images.file: ",images[0]);
   console.log(typeof(images));
+  
   try {
-    // Loop through projImages array
-    for (const file of images) {
-      // Upload image to Cloudinary
-      // file 
-      // const data = file.buffer.toString('base64')
-      // file = await readFileAsBase64(file);
+    for (let i = 0; i < images.length; i++) {
+      const file = images[i];
+      const altText = altTexts && altTexts[i] ? altTexts[i] : "";
       const uploadedImage = await cloudinary.uploader.upload(file, {
-        // Add any additional options (e.g., folder, tags, metadata)
-        folder: projID, // Example: Upload images to a specific folder in your Cloudinary account
+        folder: projID, 
+        context: `alt=${altText}`
       });
-
-      // Push the uploaded image URL to the imageUrls array
-      // imageUrls.push(uploadedImage.secure_url); // Use secure_url for HTTPS URLs
-
-      // Optionally, associate image description with the uploaded image
-      // For example, you can update the image metadata in Cloudinary
-      // await cloudinary.v2.uploader.add_metadata({
-      //   public_id: uploadedImage.public_id,
-      //   metadata: { description: image.description },
-      // });
     }
 
-    // Return the array of uploaded image URLs or other relevant information
-    // return imageUrls;
     console.log("image sent");
     return true;
   }catch (error) {
@@ -89,11 +73,24 @@ async function uploadImage(images, projID){
 
 // Parse through cloudinary results grabbing each photo's secure_url
 function processJsonResults(imageData){
-  let urls = [];
+  let images = [];
   imageData.resources.forEach(photo => {
-    urls.push(photo.secure_url);
+    let alt = "Project Image"; // Default
+
+    if (photo.context && photo.context.custom && photo.context.custom.alt) {
+        alt = photo.context.custom.alt;
+    }
+
+    else if (photo.context && photo.context.alt) {
+        alt = photo.context.alt;
+    }
+    
+    images.push({ 
+        url: photo.secure_url, 
+        alt: alt 
+    });
   });
-  return urls;
+  return images;
 }
 
 app.post('/api/uploadImage', mult.array('images'), async (req, res) => {
@@ -101,9 +98,7 @@ app.post('/api/uploadImage', mult.array('images'), async (req, res) => {
 
   try {
     projid = req.body.projid
-  
     username = req.body.username
-  
     password = req.body.password
     console.log("username: " + username)
     console.log("projid:" + projid)
@@ -118,15 +113,19 @@ app.post('/api/uploadImage', mult.array('images'), async (req, res) => {
     console.log(neededid)
   
     if ((await validateUser(connection, filter_content(username), password, neededid)) == true){
-      images = req.body.images
+      // Expecting Base64 strings in req.body.images
+      let images = req.body.images
       if (typeof images == 'string'){
         images = [images]
       }
-      // console.log(images);
+
+      // Extract Alt Texts
+      let altTexts = req.body.altTexts;
+      if (typeof altTexts == 'string') altTexts = [altTexts];
+      if (!altTexts) altTexts = [];
     
-      // Need to Figure out Where to put the Pictures
-    
-      uploadImage(images, "id" + projid);
+      // Pass to helper
+      uploadImage(images, altTexts, "id" + projid);
       res.send(true)
     }
   
@@ -140,6 +139,57 @@ app.post('/api/uploadImage', mult.array('images'), async (req, res) => {
     return error
   }
 })
+
+
+app.post('/api/replaceImages', mult.array('images'), async (req, res) => {
+  console.log("Replacing Project Pictures (Delete & Upload)");
+
+  try {
+    const projid = req.body.projid;
+    const username = req.body.username;
+    const password = req.body.password;
+    const folderName = `id${projid}`;
+
+
+    let query = "select userid from projects where projid = " + projid;
+    let dbResult = await connection.query(query);
+    
+    if(dbResult.rows.length === 0) {
+        return res.status(404).json({ error: "Project not found" });
+    }
+
+    let neededid = dbResult.rows[0].userid;
+
+    if ((await validateUser(connection, filter_content(username), password, neededid)) === true) {
+      
+      try {
+        console.log(`Deleting existing resources in folder: ${folderName}`);
+        await cloudinary.api.delete_resources_by_prefix(folderName);
+      } catch (delErr) {
+        console.log("Error deleting old images (folder might be empty or API not enabled): ", delErr.message);
+        // Proceeding anyway to upload new images
+      }
+
+      let images = req.body.images;
+      if (typeof images == 'string') images = [images];
+      if (!images) images = [];
+
+      let altTexts = req.body.altTexts;
+      if (typeof altTexts == 'string') altTexts = [altTexts];
+      if (!altTexts) altTexts = [];
+
+      await uploadImage(images, altTexts, folderName);
+      
+      res.send(true);
+    } else {
+      console.log("Invalid User for Replace Images");
+      res.status(401).json({ error: "Unauthorized" });
+    }
+  } catch (error) {
+    console.log("Replace Image API Error: " + error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Recieving request from user and send back the image urls from Cloudinary 
 app.post('/api/data', async (req, res) => {

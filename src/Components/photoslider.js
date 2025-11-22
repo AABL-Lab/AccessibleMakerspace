@@ -1,33 +1,44 @@
 import React, { useEffect, useState } from 'react';
 
 export default function PhotoSlider(prop){
-  //once the images are recieved on the single projects page, store the first image
-  let initPhoto = prop.images[0];
-  const [imageUrl, setImageUrl] = useState(prop.images[0]);
+  const [currentImage, setCurrentImage] = useState(prop.images && prop.images.length > 0 ? prop.images[0] : {url: '', alt: ''});
   
-  //set that first image as the first big picture in slider
   useEffect(() => { 
-    setImageUrl(initPhoto);
-  },[initPhoto]);
+    if (prop.images && prop.images.length > 0) {
+        setCurrentImage(prop.images[0]);
+    }
+  },[prop.images]);
 
-  //as you click on the image thats not highlighed (i.e. biggeest one), highlight that image
-  const handleImageClick = (url) => {
-    setImageUrl(url);
+  const handleImageClick = (image) => {
+    setCurrentImage(image);
   };
   
+  if (!prop.images || prop.images.length === 0) {
+      return null; 
+  }
+
   return(
     <div>
       <div className="coverImage">
         <div className='photo'>
-          {/* TODO: set ALT as the associated image description */}
-          <img src={imageUrl} alt="Displayed Image" />
+          <img 
+            src={currentImage.url} 
+            alt={currentImage.alt || "Project Main Image"} 
+          />
         </div>
       </div>
       
       <div className="miniImages">
-        {prop.images.map((url, index) => (
-        <img key={index} src={url} alt={`Image ${index}`} onClick={() => handleImageClick(url)} />
+        {prop.images.map((image, index) => (
+            <img 
+                key={index} 
+                src={image.url} 
+                alt={image.alt || `Project Thumbnail ${index + 1}`} 
+                onClick={() => handleImageClick(image)} 
+                style={{ cursor: 'pointer' }}
+            />
         ))}   
       </div>
     </div>
-  )}
+  )
+}

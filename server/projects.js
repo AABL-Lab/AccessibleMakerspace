@@ -3,6 +3,7 @@
 
 const { client, Connection } = require('pg');
 const { deleteProjectComments } = require('./comments')
+const cloudinary = require('./cloudinary');
 
 let {connect, filter_content, validateUser, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, globalTags, getGlobalTags} = require('./server');
 // const { query } = require('express');
@@ -125,6 +126,20 @@ async function getProjects(client){
 
           await deleteProjectComments(client, projID);
 
+          try {
+            const folderName = "id" + projID;
+            console.log(`Deleting Cloudinary assets from folder: ${folderName}`);
+            
+            // Delete all images/videos inside the folder
+            await cloudinary.api.delete_resources_by_prefix(folderName);
+            
+            // Delete the (now empty) folder
+            await cloudinary.api.delete_folder(folderName);
+            
+            console.log(`Successfully deleted Cloudinary folder: ${folderName}`);
+          } catch (cloudinaryError) {
+            console.error("Cloudinary Deletion Error: ", cloudinaryError);
+          }
 
           return true;
         }

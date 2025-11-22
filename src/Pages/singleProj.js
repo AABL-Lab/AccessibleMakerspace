@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import YouTube, {YoutubeProps} from "react-youtube"; 
 import CommentSection from "../Components/commentSectionTwo"; 
@@ -41,6 +40,7 @@ export default function SingleProj(props){
   const [editingMode, setEditingMode] = useState(false);
   const [id, SetID] = useState('');
   const [key, setKey] = useState(''); 
+  const [username, setUserName] = useState('');
   const [adminUser, setAdminUser] = useState(false);
 
   console.log("I am in Single project function");
@@ -54,8 +54,11 @@ export default function SingleProj(props){
   // and call the function for the project's data
   useEffect(() => {
     const projID = sessionStorage.getItem('projectId');
+    setUserName(sessionStorage.getItem('account'));
     SetID(sessionStorage.getItem('projectId'));
-    processImages(projID).then(urls => setImageUrls(urls));
+    processImages(projID).then(data => {
+        setImageUrls(data);
+    });
     getProject(projID).then(project => {
       setProjectData(project);
       console.log(project.supplies);
@@ -152,8 +155,14 @@ export default function SingleProj(props){
     console.log('key: ',key);
     const idNumber = parseInt(id.replace("id", ""));
     try{
-      const response = await axios.post('/api/deleteProject', {username: userLoggedIn, password: key, projid: idNumber});
+      const response = await axios.post('/api/deleteProject', {username: username, password: key, projid: idNumber});
       console.log("delete status: ", response.data);
+      if(response.data == false){
+        alert("You cannot delete this project because you are not the creator.");
+      } else {
+        alert("Project deleted!");
+        window.location.href = "/projects";
+      }
     }catch (error) {
       console.error("Error deleting project:", error);
     }

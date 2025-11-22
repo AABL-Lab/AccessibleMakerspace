@@ -15,22 +15,13 @@ async function sendImageRequest (id, e) {
 export { sendImageRequest };
 
 const ProjCard = ({ id , info }) => {
-  const [coverImage, setCoverImg] = useState('');
+  const [coverImage, setCoverImg] = useState(null);
   const [userLoggedIn, setUserLoggedIn] = useState(false);
   const [guest, setUserName] = useState(''); 
   const [key, setKey] = useState(''); 
   const [selectedUserId, setSelectedUserId] = useState('');
   const [adminUser, setAdminUser] = useState(false);
 
-  // TODO: toggle edit & delete buttons based on the logged in user 
-  // async function checkUserID (guest) {
-  //   console.log(guest);
-  //   console.log("about to send server request: ", guest);
-  // //   const response = await axios.post('/api/getUserByName',{userName: guest}); //TODO: doesnt return the userID
-  // //   console.log("id returned: ", response.data);
-  // }
-  
-  //on load, get user credentials & make image request
   useEffect(() => { 
     setUserLoggedIn(sessionStorage.getItem('Status') === 'true');
     setKey(sessionStorage.getItem('key'));
@@ -42,14 +33,14 @@ const ProjCard = ({ id , info }) => {
       setAdminUser(adminStatus === 'true');
     }
 
-    // checkUserID(guest);
-
     //function that calls request for project images
     const fetchData = async () => {
       try {
         console.log(`id:${id}`);
-        const imageUrl = await sendImageRequest(`id${id}`);
-        setCoverImg(imageUrl[0]);
+        const imageData = await sendImageRequest(`id${id}`);
+        if (imageData && imageData.length > 0) {
+             setCoverImg(imageData[0]);
+        }
       } catch (error) {
         console.error('Error fetching image URL:', error);
       }
@@ -65,6 +56,9 @@ const ProjCard = ({ id , info }) => {
       const response = await axios.post('/api/deleteProject', {username: guest, password: key, projid: idNumber});
       if(response.data == false){
         alert("You cannot delete this project because you are not the creator.");
+      } else {
+        alert("Project deleted!");
+        window.location.href = "/projects";
       }
     }catch (error) {
       console.error("Error deleting project:", error);
@@ -110,7 +104,7 @@ const ProjCard = ({ id , info }) => {
         ) : null}
 
         <div>
-          {coverImage && <img className="thumbnail" src={coverImage} alt="Project Thumbnail" />}
+          {coverImage && <img className="thumbnail" src={coverImage.url} alt={coverImage.alt || "Project Thumbnail"} />}
         </div>
        
         <div style={{textAlign:"center", overflowWrap:"normal"}}> 
