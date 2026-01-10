@@ -1,2 +1,4 @@
 node_modules
 npm-debug.log
+cloudinary_control.js
+db_control.js
