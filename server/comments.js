@@ -127,23 +127,30 @@ async function createComment(client, username, password, projID, comment, parren
   }
 
 // This function gets all of the comments for a given project
-  async function getProjectComments(client, projID){
-    try{
-      if (typeof projID != 'number') {throw ("Project ID Type Invalid")}
-      if (typeof client != 'object') {throw ("Client Invalid Type")}
-      let query = "SELECT * FROM comments WHERE projid = " + projID;
-      console.log(query);
-      let result = await client.query(query);
-      // console.log("here")
-      result = result.rows
-      // console.log(result)
-      return result
-    }
-    catch (error){
-      console.log("Get Project Comments Error: " + error)
-      return error
-    }
+  // This function gets all of the comments for a given project
+async function getProjectComments(client, projID) {
+  try {
+    if (typeof projID != 'number') { throw ("Project ID Type Invalid") }
+    if (typeof client != 'object') { throw ("Client Invalid Type") }
+
+    let query = `
+      SELECT comments.*, users.username 
+      FROM comments 
+      JOIN users ON comments.userid = users.userid 
+      WHERE comments.projid = ${projID}
+      ORDER BY comments.commentid ASC
+    `;
+
+    console.log(query);
+    let result = await client.query(query);
+    result = result.rows;
+    return result;
   }
+  catch (error) {
+    console.log("Get Project Comments Error: " + error);
+    return error;
+  }
+}
 // THIS FUNCTION SHOULD ONLY EVER BE INTERNALLY FACING
 // To make it public, wrap the "fun" parts in a validate user conditional
 // This function deletes all of the comments for a given function

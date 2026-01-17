@@ -612,19 +612,27 @@ app.post("/api/deleteUser", async (req, res) => {
 app.post("/api/createComment", async (req, res) => {
   console.log("Creating Comment");
   try {
-    let result = await comments.createComment(connection, req.body.username, req.body.password, req.body.projID, req.body.comment)
-    if(typeof result == 'number'){
-      res.send(true)
+    const { username, password, projID, comment, parentID } = req.body;
+
+    let result = await comments.createComment(
+        connection, 
+        username, 
+        password, 
+        projID, 
+        comment, 
+        parentID || 0
+    );
+
+    if (typeof result == 'number') {
+      res.send(true);
+    } else {
+      throw (result);
     }
-    else {
-      throw(result)
-    } 
+  } catch (error) {
+    console.log("Create Comment API Error: " + error);
+    res.status(500).json({ error: error.message });
   }
-  catch(error){
-    console.log("Create Comment API Error: " + error)
-    res.status(500).json({error: error.message});
-  }
-})
+});
 
 //created but not implemented in front end
 app.post("/api/editComment", async (req, res) => {

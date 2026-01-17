@@ -210,7 +210,15 @@ export default function FilterableDropdown({options, hideLevel, skills, setSkill
               {skills.slice(0, 5).map((skill, index) => (
                 <tr key={index}>
                   <td>{skill.skill}</td>
-                  <td>{skill.skillLevel} <div className="deleteButton"> <button onClick={() => handleDeleteSkill(index)}> X </button></div> </td>
+                  <td>{skill.skillLevel} <div className="deleteButton"> 
+                    <button onClick={() => handleDeleteSkill(index)}
+                      style={{
+                        color: '#B91C1C',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                    > X </button></div> </td>
                 </tr>
               ))}
             </tbody>

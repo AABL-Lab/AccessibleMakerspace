@@ -120,11 +120,10 @@
 .reply-button {
   background: none;
   border: none;
-  color: #007bff; /* Blue color for hyperlinks */
+  color: #4C1D95; /* Blue color for hyperlinks */
   cursor: pointer;
-  text-decoration: underline; /* Underline style for hyperlinks */
   margin-right: 2%; /* Add space between buttons */
-  background-color: rgb(255, 237, 255);
+  background-color: #F3E8FF;
   border-radius: 20%;
   padding: 1%;
   margin-bottom: 2%;
@@ -154,6 +153,32 @@
   object-fit: cover; /* Ensure the picture fills the circle without distortion */
 }
 
+.reply-box-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  gap: 8px;
+}
+
+
+.reply-input-expanded {
+  flex-grow: 1; /* Makes the input stretch to fill space */
+}
+
+.reply-send-btn {
+  background-color: #DBEAFE; /* Pale Blue */
+  color: #1E3A8A;          /* Dark Blue */
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.reply-send-btn:hover {
+  background-color: #BFDBFE; /* Slightly darker blue on hover */
+}
 
 
 

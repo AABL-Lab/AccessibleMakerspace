@@ -76,7 +76,7 @@ const handleDeleteSupply = (indexToRemove) => {
               <td>
                   <button 
                     onClick={() => handleDeleteSupply(index)}
-                    style={{color: 'red', cursor: 'pointer', border: 'none', background: 'transparent'}}
+                    style={{color: '#B91C1C', cursor: 'pointer', border: 'none', background: 'transparent'}}
                   >
                     X
                   </button>
@@ -457,9 +457,9 @@ export default function Home(){
       {possibleErrors.missingAltText && (
         <div className="incompleteForm" style={{
             backgroundColor: "#ffebee", 
-            color: "#c62828", 
+            color: "#7f1d1d", 
             padding: "15px", 
-            border: "1px solid #c62828",
+            border: "1px solid #7f1d1d",
             marginBottom: "20px",
             borderRadius: "5px",
             textAlign: "center"
@@ -518,7 +518,7 @@ export default function Home(){
                                 onClick={() => handleRemoveImage(index)}
                                 style={{
                                     color: 'white', 
-                                    backgroundColor: '#d9534f',
+                                    backgroundColor: '#B91C1C',
                                     border: 'none', 
                                     borderRadius: '4px',
                                     padding: '2px 8px',
@@ -537,7 +537,7 @@ export default function Home(){
                           placeholder="Describe this image for screen readers..."
                           style={{
                               width: "100%",
-                              padding: "5px",
+                              padding: "2px",
                               minHeight: "50px"
                           }}
                         />
