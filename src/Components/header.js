@@ -36,7 +36,7 @@ export default function Header() {
       <div className="left-container">
         <div className="logo">
           <a href="/">
-            <img src="https://cdn.glitch.global/fdf75b2b-7e9a-4bb3-986a-bd88e96d179a/logo.png?v=1687373287862" alt="Website Logo" />
+            <img src="images/logo.png" alt="Website Logo" />
           </a>
         </div>
       </div>
