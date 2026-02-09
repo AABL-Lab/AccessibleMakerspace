@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import FilterableDropdown from "../Components/FilterableDropdown";
 import axios from "axios";
 import { decryptData } from "../Components/adminEncrypt";
+import { Toaster, toast } from 'sonner';
 
 // Server call to get the general list for Tags & Skills
 async function getTagSkills(){
@@ -138,10 +139,7 @@ export default function Home(){
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   
-  const [possibleErrors, setPossibleErrors] = useState({
-    incompleteForm: false,
-    missingAltText: false
-  });
+  const [highlightMissingAlt, setHighlightMissingAlt] = useState(false);
   
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
@@ -315,17 +313,14 @@ export default function Home(){
     const updatedImages = [...projImages];
     updatedImages[index].altText = value;
     
-    if(possibleErrors.missingAltText){
-         setPossibleErrors(prevState => ({
-        ...prevState,
-        missingAltText: false
-      }));
+    // If we were highlighting errors, remove the highlight once user types
+    if(highlightMissingAlt){
+         setHighlightMissingAlt(false);
     }
     setProjImages(updatedImages);
   };
 
   const handleSubmit = async () => {
-    
     // Run validation first
     if(checkCompleteness()) {
       return; // Stop if validation fails
@@ -355,12 +350,15 @@ export default function Home(){
       const fetchResponce = await axios.post( '/api/uploadImage', Images, config)
       console.log("Fetch responce: " + fetchResponce.data)
       
+      toast.success("Project created successfully!");
+
       setTimeout(function() {
         window.location.href = "/projects";
       }, 500);
     }
     catch (err){
       console.log("Error submitting project: " + err);
+      toast.error("Failed to submit project.");
     }
   };
 
@@ -371,36 +369,25 @@ export default function Home(){
     // Check basic fields
     if( title === '' || projDesc === '' || projImages.length === 0 || 
       skills.length === 0 || typedTag.length === 0 || items.length === 0){
-        setPossibleErrors(prevState => ({
-          ...prevState,
-          incompleteForm: true
-        }));
+        
+        toast.error("Incomplete Form", {
+            description: "Please fill out all fields (Title, Description, Images, Skills, Supplies, Tags). Video is optional."
+        });
         hasError = true;
     }
 
     // Check for missing Alt Text
     const hasMissingAlt = projImages.some(img => !img.altText || img.altText.trim() === '');
     if (hasMissingAlt) {
-      setPossibleErrors(prevState => ({
-        ...prevState,
-        missingAltText: true
-      }));
+      setHighlightMissingAlt(true); // Triggers red borders
+      toast.error("Accessibility Error", {
+        description: "Every uploaded image must have an Alt Text description."
+      });
       hasError = true;
     }
 
     return hasError;
   };
-
-  const handleChange = (event) => {
-    event.preventDefault();
-    if(possibleErrors.incompleteForm){
-      setPossibleErrors(prevState => ({
-        ...prevState,
-        incompleteForm: false
-      }));
-    }
-  };
-
 
   async function handleUpdate(){
     if(checkCompleteness()) return;
@@ -427,13 +414,16 @@ export default function Home(){
         const config = {headers: {'Content-Type': 'multipart/form-data'}};
         await axios.post('/api/replaceImages', Images, config);
 
+        toast.success("Project updated successfully!");
+
         // Redirect after success
         window.location.href = "/projects";
       }else{
-        alert("could not edit project");
+        toast.error("Could not edit project");
       }
     }catch (err){
       console.log("Error updating project: " + err);
+      toast.error("An error occurred while updating.");
     }
   }
 
@@ -454,26 +444,9 @@ export default function Home(){
 
   return( 
     <>  
-      {possibleErrors.missingAltText && (
-        <div className="incompleteForm" style={{
-            backgroundColor: "#ffebee", 
-            color: "#7f1d1d", 
-            padding: "15px", 
-            border: "1px solid #7f1d1d",
-            marginBottom: "20px",
-            borderRadius: "5px",
-            textAlign: "center"
-        }}> 
-          <h2> Accessibility Error: Every uploaded image must have an Alt Text description. </h2>
-        </div>
-      )}
-      
-      {possibleErrors.incompleteForm ? (
-        <div className="incompleteForm"> 
-          <h2> Please make sure you fill out all the fields in the form before 
-          uploading your project. Adding a video is optional. </h2>
-        </div>):(
-      <div></div>)}
+      <Toaster richColors position="top-center" closeButton />
+
+      {/* Removed old div error banners */}
 
       <div className="grid-container">
         <div className="grid-project-title-container">
@@ -499,7 +472,7 @@ export default function Home(){
               {projImages.map((image, index) => (
                 <div key={index} style={{
                     marginBottom: "15px", 
-                    border: (possibleErrors.missingAltText && !image.altText) ? "2px solid #c62828" : "1px solid #ddd",
+                    border: (highlightMissingAlt && !image.altText) ? "2px solid #c62828" : "1px solid #ddd",
                     padding: "10px",
                     borderRadius: "4px"
                 }}>
