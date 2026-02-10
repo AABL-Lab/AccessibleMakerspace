@@ -22,7 +22,14 @@ const Footer = () => {
       <div className="row">
         <div className="location">
           <h4 className="contact">Contact Us</h4>
-          <a href="https://shorturl.at/jlz12" target="_blank" rel="noreferrer"> 177 College Ave, Medford, MA 02155</a>
+          <a 
+            href="https://www.google.com/maps/search/?api=1&query=177+College+Ave,+Medford,+MA+02155" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          > 
+            <i className="fa fa-map-marker mr-3"></i> 
+            177 College Ave, Medford, MA 02155
+          </a>
           <p className="mb-0"><i className="fa fa-phone mr-3"></i>(617) 627-6724</p>
           <p> <i className="fa fa-envelope-o mr-3"></i> a2makerspace@eecs.tufts.edu</p>
         </div>

@@ -111,6 +111,7 @@ export default function UserPage() {
           if (clickedUser) {
             setDisplayName(clickedUser.displayname);
             setBio(clickedUser.bio);
+            setProfilePic(clickedUser.profilepicurl);
             // Update other state variables as needed
           }
         } catch (error) {
@@ -298,20 +299,18 @@ export default function UserPage() {
         {/* First column */}
         <div className="column-1">
           <div className="picture-container">
-            {profilePic ? (
-              <>
-                <img src={profilePic} alt="Profile Preview" />
-              </>
-            ) : (
-                <span>Click to upload profile picture </span> 
-              )}
-
-            {/* Input for selecting an image file */}
+            {profilePic && (
+              <img src={profilePic} alt="Profile Preview (Click to upload or change)" />
+            )}
+            <span>
+              {profilePic ? "Change Picture" : "Click to upload profile picture"}
+            </span>
             <input
               type="file"
               id="profilePicInput"
               accept="image/*"
               onChange={handlePictureChange}
+              title=" "
             />
           </div>
 
