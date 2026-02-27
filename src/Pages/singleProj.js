@@ -42,6 +42,7 @@ export default function SingleProj(props){
   const [key, setKey] = useState(''); 
   const [username, setUserName] = useState('');
   const [adminUser, setAdminUser] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   console.log("I am in Single project function");
   
@@ -49,13 +50,36 @@ export default function SingleProj(props){
     width: window.innerWidth * 0.35,  // 35% of window width
     height: (window.innerWidth * 0.35) / 1.77,  // Maintain 16:9 aspect ratio
   });
+
+  // Function to check if the logged-in user owns this specific project
+  async function checkIfCreator(user, currentProjId) {
+    if (!user || !currentProjId) return;
+    
+    try {
+      const response = await axios.post(`/api/getUserProjects`, { username: user });
+      const userProjects = response.data;
+      const cleanCurrentId = currentProjId.replace("id", "");
+      const ownsProject = userProjects.some(proj => String(proj.projid) === String(cleanCurrentId));
+      
+      setIsCreator(ownsProject);
+    } catch (error) {
+      console.error("Getting User Projects Error: " + error);
+    }
+  }
   
   // on page load: grab the project id from the clicked card's storage value 
   // and call the function for the project's data
   useEffect(() => {
     const projID = sessionStorage.getItem('projectId');
-    setUserName(sessionStorage.getItem('account'));
-    SetID(sessionStorage.getItem('projectId'));
+    const storedAccount = sessionStorage.getItem('account'); 
+
+    setUserName(storedAccount);
+    SetID(projID);
+
+    if (storedAccount && projID) {
+      checkIfCreator(storedAccount, projID);
+    }
+
     processImages(projID).then(data => {
         setImageUrls(data);
     });
@@ -141,8 +165,9 @@ export default function SingleProj(props){
   //sets edit mode & opens th form page i.e projectUpload
   async function handleEdit(e){
     e.stopPropagation();
-    sessionStorage.setItem('Editing', true); 
-    sessionStorage.setItem('EditingID', id);
+    sessionStorage.setItem('Editing', true);
+    const cleanCurrentId = id.replace("id", ""); 
+    sessionStorage.setItem('EditingID', cleanCurrentId);
     setTimeout(() => {
       window.location.href = "/projectUpload";
     }, 0);
@@ -171,7 +196,7 @@ export default function SingleProj(props){
   return(
     <div>
       <h1 style={{textAlign:"center",marginTop:"40px",marginBottom:"10px"}}> {projectInfo.title} </h1>
-      {userLoggedIn && adminUser ? (
+      {userLoggedIn && (adminUser || isCreator) ? (
         <div className="twoColRowButtons"> 
           <button className="deleteNewButton" onClick={handleDelete} > Delete </button>
           <button className="editNewButton" id={id} onClick={handleEdit}> Edit </button>

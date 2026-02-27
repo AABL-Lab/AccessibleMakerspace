@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ProjCard from "../Components/projCard";
 import axios from 'axios';
 import { decryptData } from "../Components/adminEncrypt";
+import { toast } from 'sonner';
 
 //Todo: restrict front end access to edit acces on userPage. user's shouldnt see the edit buttons or 
 // delete button unless it is their page. The server verifies the user before nay changes are made but 
@@ -285,11 +286,25 @@ export default function UserPage() {
     try {
       const response = await axios.post('/api/deleteUser', { username: account, password: key });
       console.log("delete status: ", response.data);
-      //log user out by clearing all the storage information
-      sessionStorage.clear();
-      window.location.href = "/";
+      
+      toast.info(response.data);
+
+      setShowPopup(false);
+      setConfirmDelete(false);
+      
+      setTimeout(() => {
+        sessionStorage.clear();
+        window.location.href = "/";
+      }, 1500);
+    
+      
     } catch (error) {
       console.error("Error deleting user:", error);
+      toast.error("An error occurred while communicating with the server.");
+      
+      // Reset the popup states
+      setShowPopup(false);
+      setConfirmDelete(false);
     }
   };
 

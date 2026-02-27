@@ -1,131 +1,185 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
+import { Toaster, toast } from 'sonner';
 
 export default function SignUp(props) {
-  props.funcNav(false); // hides navigation bar 
+  if (props.funcNav) {
+    props.funcNav(false); 
+  }
+
   // variables used for data storage
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [verifiedPassword, setVerifiedPassword] = useState('');
   const [email, setEmail] = useState('');
+  
   // variables used for error handling 
   const [passwordError, setPasswordError] = useState('');
-  const [userExists, setUserExistsError] = useState('');
-  
+  const [userExistsError, setUserExistsError] = useState('');
   const [showTooltip, setShowTooltip] = useState(false); //todo - not implemented
   
-  let responseVal = 0;  
-  
-  //function that processes submition of login form - called when Sign Up clicked
+  // function that processes submission of login form
   const handleSubmit = async (event) => {
     event.preventDefault();
-    //if the user's credentials doesn't match approoved structure then stop account creation process
+    
+    // Reset errors before checking
+    setPasswordError('');
+    setUserExistsError('');
+
+    // if the user's credentials don't match approved structure, stop account creation process
     if (!verifyInfo(password, verifiedPassword, email)){
       return;
     }
 
     // send signup api call to the nodeJs backend 
     try {
-      const response = await axios.post('/api/signUp', {userName: username, password: password, email: email});
-      responseVal = response.data;
+      const response = await axios.post('/api/signUp', {
+        userName: username, 
+        password: password, 
+        email: email
+      });
+      
+      // Pass the response data directly to the approval handler
+      accountApproval(response.data);
     } catch (error) {
       console.error('Error sending user information: ', error);
+      toast.error('An error occurred while communicating with the server.');
     }
-    //check the server response to see if sign up was successful or not 
-    accountApproval(responseVal);
   }
 
-  // function that validates the user's passwords meet standard format (capital letter, number etc.), 
-  // verify passwords match & email 
-  function verifyInfo(password, verifiedPassword, email){
-    // Validate password
+  // function that validates passwords and email format
+  function verifyInfo(password, verifiedPassword, email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
+      return false;
+    }
+
+    // Password Validation Regex Patterns
     const capitalLetterRegex = /[A-Z]/;
     const numberRegex = /[0-9]/;
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>\-_]/; 
+
+    if (password.length < 8) {
+      const errorMsg = 'Password must be at least 8 characters long';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
+      return false;
+    }
 
     if (!capitalLetterRegex.test(password)) {
-      setPasswordError('Password must contain at least one capital letter');
+      const errorMsg = 'Password must contain at least one capital letter';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
       return false;
     }
 
     if (!numberRegex.test(password)) {
-      setPasswordError('Password must contain at least one number');
+      const errorMsg = 'Password must contain at least one number';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
       return false;
     }
 
-    if (password != verifiedPassword) {
-      setPasswordError('Passwords do not match');
+    if (!specialCharRegex.test(password)) {
+      const errorMsg = 'Password must contain at least one special character';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
+      return false;
+    }
+
+    if (password !== verifiedPassword) {
+      const errorMsg = 'Passwords do not match';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
       return false;
     } 
-
-    //TODO: Email Verification
 
     return true;
   }
 
-  //check the signUp return value to see if it was a success
-  function accountApproval(){
-    if(responseVal == "1"){ // account creation was successful 
-      //TODO: Pop-up saying "welcome" 
+  // check the signUp return value to see if it was a success
+  function accountApproval(resVal) {
+    if (resVal == "1") { // account creation was successful 
+      toast.success(`Welcome, ${username}! Account created successfully.`);
+      
       const isSignedUp = true; 
       sessionStorage.setItem('Status', isSignedUp); 
       sessionStorage.setItem('account', username);
-      sessionStorage.setItem('key', password);
       
-      //transition to homwpage on success 
       setTimeout(function() {
         window.location.href = "/";
-      }, 500);
-    }else if(responseVal == "2"){ // account creation wasn't successful 
-      setUserExistsError("A user with these credentials already exist.");
+      }, 1500);
+
+    } else if (resVal == "2") { // account creation wasn't successful 
+      const errorMsg = "A user with these credentials already exists.";
+      setUserExistsError(errorMsg);
+      toast.error(errorMsg);
     }
   }
 
-  return(
+  return (
     <div id="vertical">
-      <div class="center">
-        <h1 style={{textAlign:"center", fontSize:"xlarge", paddingTop:"10px"}}> Makerspace Sign Up</h1>
-          <div id="leftCol">
-            <img src="images/cover-image.svg" alt="People Building" className="imgCartoon"/>
-          </div>
-         <div id="rightCol" style={{marginTop:"0"}}>
-          {/* {passwordError &&<h2></h2>} */}
-          {passwordError && <div style={{paddingLeft:"12px",color:"red"}}>{passwordError}</div>}
-            <form class="form loginform signUp" id="signUpform" onSubmit={handleSubmit} >
-              <label>
-                Username:
-                <input type="text" value={username} placeholder=" username" onChange={(e) => setUsername(e.target.value)}  required/>
-              </label>
-              <label>
-                Email:
-                <input type="text" value={email} placeholder=" email" onChange={(e) => setEmail(e.target.value)} required/>
-              </label>
-              {/*  onChange={(e) => setPassword(e.target.value)}onMouseLeave={() => setShowTooltip(false)} */}
-              <label>
-                Password (8 characters minimum):
-              </label>
-                {/* todo: add toolTips for password format onClick={() => setShowTooltip(true)} */}
-                <input type="password" className={passwordError ? 'error' : ''} value={password} placeholder=" password"  minLength="8" 
-                onChange={(e) => setPassword(e.target.value)} required/> 
-              
-              {/* Todo: not implemented but can help user's understand proper structure */}
-              {/* {showTooltip && (
-                <div className="tooltip">
-                  <h1> here </h1>
-                  <ul>
-                    <li>At least 8 characters long</li>
-                    <li>At least one capital letter</li>
-                    <li>At least one number</li>
-                    <li>Optional: special characters</li>
-                  </ul>
-                </div>
-              )} */}
-              <label>
-                Confirm Password:
-              </label>
-              <input type="password" className={passwordError ? 'error' : ''} value={verifiedPassword} placeholder=" confirm password" onChange={(e) => setVerifiedPassword(e.target.value)} required/>
-              <input type="submit" value="Sign Up" />
-            </form>
-          </div>
+      <Toaster richColors position="top-center" />
+      
+      <div className="center">
+        <h1 style={{textAlign:"center", fontSize:"xlarge", paddingTop:"10px"}}> 
+          Makerspace Sign Up
+        </h1>
+        <div id="leftCol">
+          <img src="images/cover-image.svg" alt="People Building" className="imgCartoon"/>
+        </div>
+        <div id="rightCol" style={{marginTop:"0"}}>
+          {passwordError && <div style={{paddingLeft:"12px", color:"red"}}>{passwordError}</div>}
+          {userExistsError && <div style={{paddingLeft:"12px", color:"red"}}>{userExistsError}</div>}
+          
+          <form className="form loginform signUp" id="signUpform" onSubmit={handleSubmit}>
+            <label>
+              Username:
+              <input 
+                type="text" 
+                value={username} 
+                placeholder=" username" 
+                onChange={(e) => setUsername(e.target.value)}  
+                required 
+              />
+            </label>
+            <label>
+              Email:
+              <input 
+                type="email" 
+                value={email} 
+                placeholder=" email" 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+            </label>
+            <label>
+              Password (8 characters minimum):
+            </label>
+            <input 
+              type="password" 
+              className={passwordError ? 'error' : ''} 
+              value={password} 
+              placeholder=" password"  
+              minLength="8" 
+              onChange={(e) => setPassword(e.target.value)} 
+              required 
+            /> 
+            <label>
+              Confirm Password:
+            </label>
+            <input 
+              type="password" 
+              className={passwordError ? 'error' : ''} 
+              value={verifiedPassword} 
+              placeholder=" confirm password" 
+              onChange={(e) => setVerifiedPassword(e.target.value)} 
+              required 
+            />
+            <input type="submit" value="Sign Up" />
+          </form>
+        </div>
       </div>
     </div>
   );
