@@ -138,6 +138,7 @@ export default function Home(){
   const [items, setItems] = useState([]);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [availableProjects, setAvailableProjects] = useState([]);
   
   const [highlightMissingAlt, setHighlightMissingAlt] = useState(false);
   
@@ -161,6 +162,13 @@ export default function Home(){
       .catch(error => {
         console.error("Error fetching data:", error);
       });
+    
+    axios.post('/api/getUserProjects', { username: sessionStorage.getItem('account') })
+      .then(response => {
+        if(response.data) setAvailableProjects(response.data);
+      })
+      .catch(err => console.error("Error fetching available projects:", err));
+    
     const editing = sessionStorage.getItem('Editing') === 'true';
     const adminEncrypt = sessionStorage.getItem('admin');
     if (adminEncrypt) {
@@ -193,12 +201,20 @@ export default function Home(){
   }
 };
 
-  const preFillForm = async () => {
-    const projid = sessionStorage.getItem('EditingID');
-    setProjID(sessionStorage.getItem('EditingID'));
+  const loadProjectData = async (projid, isEditing = false) => {
     try {
       const response = await axios.post('/api/project', {id: projid});
-      setFormData(response.data);
+      
+      let data = response.data;
+      if (Array.isArray(data)) {
+        data = data.length > 0 ? data[0] : {};
+      }
+      
+      if (!isEditing && data.title) {
+        data.title = `${data.title} (Copy)`;
+      }
+      
+      setFormData(data);
 
       const imgResponse = await axios.post('/api/data', {id: "id" + projid});
       if (imgResponse.data && Array.isArray(imgResponse.data)) {
@@ -216,9 +232,26 @@ export default function Home(){
           setProjImages(loadedImages);
       }
     } catch (err) {
-      console.log("Error editing project: " + err);
+      console.log("Error loading project data: " + err);
+      toast.error("Failed to load project data.");
     } 
-  }
+  };
+
+  const preFillForm = () => {
+    const projid = sessionStorage.getItem('EditingID');
+    setProjID(projid);
+    loadProjectData(projid, true);
+  };
+
+  const handleTemplateSelect = (event) => {
+    const selectedProjId = event.target.value;
+    if (selectedProjId) {
+      loadProjectData(selectedProjId, false);
+    } else {
+      clearValues();
+      setProjImages([]);
+    }
+  };
   
   useEffect(() => { 
     setUsername(sessionStorage.getItem('account'));
@@ -449,6 +482,27 @@ export default function Home(){
       {/* Removed old div error banners */}
 
       <div className="grid-container">
+        {!editMode && availableProjects.length > 0 && (
+          <div className="grid-template-container" style={{ marginBottom: "20px" }}>
+            <div className="project-title">
+              <h2>Create from Existing Project:</h2>
+              <select 
+                onChange={handleTemplateSelect} 
+                style={{ width: "100%", padding: "10px", fontSize: "16px", borderRadius: "4px", border: "1px solid #ccc" }}
+              >
+                <option value="">-- Choose a project to use as a template --</option>
+                {availableProjects.map((proj) => {
+                  const projectId = proj.id || proj.projid || proj.projID; 
+                  return (
+                    <option key={projectId} value={projectId}>
+                      {proj.title}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          </div>
+        )}
         <div className="grid-project-title-container">
           <div className ="project-title">
             <h2>Project Title: </h2>
