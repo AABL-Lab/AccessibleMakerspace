@@ -49,6 +49,14 @@ export default function SignUp(props) {
 
   // function that validates passwords and email format
   function verifyInfo(password, verifiedPassword, email) {
+    const emojiRegex = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u;
+    if (emojiRegex.test(username) || emojiRegex.test(password) || emojiRegex.test(verifiedPassword) || emojiRegex.test(email)) {
+      const errorMsg = 'Emoji characters are not allowed in sign up fields';
+      setPasswordError(errorMsg);
+      toast.error(errorMsg);
+      return false;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('Please enter a valid email address');
@@ -115,6 +123,8 @@ export default function SignUp(props) {
       const errorMsg = "A user with these credentials already exists.";
       setUserExistsError(errorMsg);
       toast.error(errorMsg);
+    } else {
+      toast.error(resVal || "Account could not be created.");
     }
   }
 

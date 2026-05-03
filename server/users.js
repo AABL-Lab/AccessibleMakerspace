@@ -4,7 +4,12 @@ const {connect, filter_content, validateUser, getUserID, validateAdmin} = requir
 // const { query } = require('express');
 // const { FOCUSABLE_SELECTOR } = require('@testing-library/user-event/dist/utils');
 const bcrypt = require('bcryptjs');
+const cloudinary = require('./cloudinary');
+const { deleteProject } = require('./projects');
 
+function containsEmoji(text){
+  return /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(text);
+}
 
 // skills = ["Coding", "CAD"]
 
@@ -61,6 +66,7 @@ async function createUser(client, userName, password, email){
       if (typeof userName != 'string') {throw("Username is not a string")}
       if (typeof password != 'string') {throw("Password is not a string")}
       if (typeof email != 'string') {throw("Email is not a string")}
+      if (containsEmoji(userName) || containsEmoji(password) || containsEmoji(email)) {return "Emoji characters are not allowed in sign up fields"}
       // console.log("Type Checked");
       userName = filter_content(userName).trim();
       // password = filter_content(password);
@@ -241,6 +247,28 @@ async function deleteUser(client, username, passWord, adminUsername) {
     if (typeof client != 'object') {throw ("Client Invalid Type")}
     userID = await getUserID(client, username);
     if (await validateUser(client, username, passWord, userID)) {
+      const userProjects = await client.query("SELECT projid FROM projects WHERE userid = " + userID);
+
+      for (let i = 0; i < userProjects.rows.length; i++){
+        const projID = Number(userProjects.rows[i].projid);
+        const deletedProject = await deleteProject(client, username, passWord, projID);
+
+        if (deletedProject !== true){
+          throw("Project " + projID + " Not Deleted");
+        }
+      }
+
+      await client.query("DELETE FROM comments WHERE userid = " + userID);
+
+      try {
+        const profileFolder = "user_profile/" + userID;
+        await cloudinary.api.delete_resources_by_prefix(profileFolder);
+        await cloudinary.api.delete_folder(profileFolder);
+      }
+      catch (cloudinaryError) {
+        console.error("Profile Picture Cloudinary Deletion Error: ", cloudinaryError);
+      }
+
       let query = "DELETE FROM users WHERE userid = " + userID;
       // console.log(query);
       await client.query(query);

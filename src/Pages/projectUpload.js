@@ -16,16 +16,18 @@ async function getTagSkills(){
 };
 
 // SuppliesContent Component
-const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, items, setItems }) => {
+const SuppliesContent = ({quantity, setQuantity, itemName, setItemName, buyLink, setBuyLink, items, setItems }) => {
   const handleAddButtonClick = (event) => { 
     if (quantity > 0 && itemName.trim() !== '') {
       const newItem = {
         quantity: quantity,
-        itemName: itemName
+        itemName: itemName,
+        buyLink: buyLink
       };
       setItems(prevItems => [...prevItems, newItem]);
-      setQuantity(0);
+      setQuantity(1);
       setItemName('');
+      setBuyLink('');
     }
   }; 
 
@@ -56,6 +58,13 @@ const handleDeleteSupply = (indexToRemove) => {
           value={itemName}
           onChange={(e) => setItemName(e.target.value)}
         />
+        <input
+          className="supply-buy-link-input"
+          type="url"
+          placeholder="Optional link to buy"
+          value={buyLink}
+          onChange={(e) => setBuyLink(e.target.value)}
+        />
         <button className="add-button" onClick={handleAddButtonClick}>Add</button>
       </div>
     </div>
@@ -67,6 +76,7 @@ const handleDeleteSupply = (indexToRemove) => {
           <tr>
             <th>Quantity</th>
             <th>Item Name</th>
+            <th>Buy Link</th>
           </tr>
         </thead>
         <tbody>
@@ -74,6 +84,7 @@ const handleDeleteSupply = (indexToRemove) => {
             <tr key={index}>
               <td>{item.quantity}</td>
               <td>{item.itemName}</td>
+              <td>{item.buyLink ? <a href={item.buyLink} target="_blank" rel="noreferrer">Buy</a> : ""}</td>
               <td>
                   <button 
                     onClick={() => handleDeleteSupply(index)}
@@ -130,10 +141,12 @@ export default function Home(){
   const [projDesc, setProjDesc] = useState("");
   const [skills, setSkills] = useState([]); 
   const [typedTag, setTypedTag] = useState([]);
-  const [quantity, setQuantity] = useState(0);   
+  const [quantity, setQuantity] = useState(1);   
   const [itemName, setItemName] = useState("");
+  const [buyLink, setBuyLink] = useState("");
   const [projVideo, setProjVideo] = useState("");
   const [aslVideo, setAslVideo] = useState("");
+  const [buildFilesURL, setBuildFilesURL] = useState("");
   const [adminUser, setAdminUser] = useState(false);
   const [items, setItems] = useState([]);
   const [username, setUsername] = useState('');
@@ -149,6 +162,7 @@ export default function Home(){
     aslurl: '', 
     title: '',
     description: '',
+    buildfilesurl: '',
     skills: [],
     supplies: [],
     tags: [],
@@ -263,6 +277,7 @@ export default function Home(){
     setTitle(formData.title || "");
     setProjVideo(formData.videourl || "");
     setAslVideo(formData.aslurl || "");
+    setBuildFilesURL(formData.buildfilesurl || "");
     setProjDesc(formData.description || "");
     setTypedTag(formData.tags || []);
 
@@ -296,9 +311,13 @@ export default function Home(){
     if(formData.supplies && Array.isArray(formData.supplies)){
         const formattedSupplies = formData.supplies.map(s => {
             if(Array.isArray(s)){
-                return { quantity: s[0], itemName: s[1] };
+                return { quantity: s[0], itemName: s[1], buyLink: s[2] || "" };
             }
-            return s;
+            return {
+              quantity: s.quantity || "",
+              itemName: s.itemName || "",
+              buyLink: s.buyLink || ""
+            };
         });
         setItems(formattedSupplies);
     } else {
@@ -363,7 +382,7 @@ export default function Home(){
       const response = await axios.post('/api/createProject', {
         userName: username, 
         password: password, title:title, description:projDesc, 
-        videoURL:projVideo, aslURL:aslVideo, projImages:[],
+        videoURL:projVideo, aslURL:aslVideo, buildFilesURL:buildFilesURL, projImages:[],
         supplies:items, skill:skills, tags:typedTag 
       });
 
@@ -429,7 +448,7 @@ export default function Home(){
       let response = await axios.post("/api/editProject", {
         username: username, password: password, projid: Number(projid), 
         title:title, description:projDesc, 
-        videoURL:projVideo, aslURL:aslVideo, supplies:items, skill:skills, tags:typedTag 
+        videoURL:projVideo, aslURL:aslVideo, buildFilesURL:buildFilesURL, supplies:items, skill:skills, tags:typedTag 
       });
 
       if(response.data){
@@ -469,6 +488,7 @@ export default function Home(){
       aslurl: '',
       title: '',
       description: '',
+      buildfilesurl: '',
       skills: [],
       supplies: [],
       tags: []
@@ -579,9 +599,25 @@ export default function Home(){
           <div className="grid-item video-container">
             <div className="video-upload"> 
               <h2>Upload Video:</h2>
-              <input type="url" id ="url" name="url" value={projVideo} onChange={(e) => setProjVideo(e.target.value)}></input>
+              <input
+                type="url"
+                id ="url"
+                name="url"
+                value={projVideo}
+                onChange={(e) => setProjVideo(e.target.value)}
+                placeholder="A YouTube video link"
+              ></input>
               <h2>Video Description:</h2>
               <textarea id="video-description" name="video-description" rows="3" placeholder="Enter video description"></textarea>
+              <h2 style={{marginTop: '15px'}}>Build Files Link:</h2>
+              <input
+                type="url"
+                id="build-files-url"
+                name="build-files-url"
+                value={buildFilesURL}
+                onChange={(e) => setBuildFilesURL(e.target.value)}
+                placeholder="Link to STL, CAD, or other build files"
+              />
               <h2 style={{marginTop: '15px'}}>Upload ASL Video:</h2>
               <input 
                 type="url" 
@@ -590,14 +626,15 @@ export default function Home(){
                 value={aslVideo} 
                 onChange={(e) => setAslVideo(e.target.value)}
                 disabled={!adminUser} 
-                placeholder={adminUser ? "Enter ASL video URL" : "Admin access required"}
+                placeholder={adminUser ? "An ASL YouTube video link" : "Admin access required to add ASL video"}
               />
             </div>
           </div>
         </div>
 
         <SuppliesContent quantity={quantity} setQuantity={setQuantity} 
-          itemName={itemName} setItemName={setItemName} items={items}
+          itemName={itemName} setItemName={setItemName}
+          buyLink={buyLink} setBuyLink={setBuyLink} items={items}
           setItems={setItems}
         />
         <SkillsContent list={generalList} skills={skills} setSkills={setSkills}/>

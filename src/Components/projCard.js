@@ -91,6 +91,28 @@ const ProjCard = ({ id , info }) => {
     window.location.href = "/";
   }
 
+  function parseTags(tags){
+    if (Array.isArray(tags)) {
+      return tags
+        .map(tag => Array.isArray(tag) ? tag[0] : tag)
+        .filter(tag => typeof tag === 'string' && tag.trim() !== '')
+        .map(tag => tag.trim());
+    }
+
+    if (typeof tags === 'string' && tags.trim() !== '') {
+      return tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
+    }
+
+    return [];
+  }
+
+  const projectTags = parseTags(info.tags);
+  const visibleTags = projectTags.slice(0, 3);
+  const hiddenTagCount = projectTags.length - visibleTags.length;
+
   return(
     // displays each card with the proper format 
     <div className="projCard" id={id} onClick={handleClick}> 
@@ -111,7 +133,18 @@ const ProjCard = ({ id , info }) => {
           <h2> {info.title} </h2> 
         </div>
 
-        <div className="tags"> {info.tags} </div>
+        <div className="projectCardTags">
+          {visibleTags.map((tag, index) => (
+            <span className="projectCardTag" key={`${id}-${tag}-${index}`}>
+              {tag}
+            </span>
+          ))}
+          {hiddenTagCount > 0 ? (
+            <span className="projectCardTag projectCardTagMore">
+              +{hiddenTagCount} more
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
   );

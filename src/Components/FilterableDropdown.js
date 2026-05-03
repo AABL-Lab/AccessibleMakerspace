@@ -154,7 +154,7 @@ export default function FilterableDropdown({options, hideLevel, skills, setSkill
             value={filterText}
             onChange={handleInputChange}
             onFocus={() => setShowDropdown(true)} // Show dropdown when input is focused
-            placeholder="Add relevent skills"
+            placeholder={id === "tags" ? "Add relevant tags" : "Add relevant skills"}
             className="dropdownBox"
             onKeyDown={handleKeyPress}
           />

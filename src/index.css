@@ -113,6 +113,70 @@ h1 {
   background-color: #27285C
 }
 
+.visitor-guidance {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(20, 52, 164, 0.16);
+  margin-top: 32px;
+  padding: 24px;
+  text-align: left;
+}
+
+.visitor-guidance h2 {
+  color: #1434A4;
+  margin-bottom: 8px;
+}
+
+.visitor-guidance p {
+  letter-spacing: normal;
+  line-height: 1.35;
+  margin: 0;
+  max-width: none;
+  text-align: left;
+  word-spacing: normal;
+}
+
+.visitor-guidance-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  margin-top: 18px;
+}
+
+.visitor-guidance-card {
+  border: 1px solid rgba(20, 52, 164, 0.25);
+  border-radius: 12px;
+  color: black;
+  display: block;
+  line-height: 1.35;
+  padding: 16px;
+  text-align: left;
+  text-decoration: none;
+  transition-duration: .2s;
+}
+
+.visitor-guidance-card h3 {
+  color: #1434A4;
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 6px 0;
+}
+
+.visitor-guidance-card p {
+  font-size: 16px;
+  letter-spacing: normal;
+  line-height: 1.35;
+  margin: 0;
+  max-width: none;
+  text-align: left;
+  word-spacing: normal;
+}
+
+.visitor-guidance-card:hover {
+  background-color: rgb(216, 216, 249);
+  transform: translateY(-2px);
+}
+
 .title {
   font-size: 45px;
   text-align: center;

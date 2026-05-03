@@ -214,14 +214,34 @@ export default function SingleProj(props){
               <h2> Supplies</h2> 
               <ul> 
                 {/* Map over each item in the items array and create a list item for each */}
-                {items.map((item, index) => (
-                  <li key={index}>
-                    {item[0]}  {item[1]}
-                  </li>
-                ))}
+                {items.map((item, index) => {
+                  const quantity = Array.isArray(item) ? item[0] : item.quantity;
+                  const itemName = Array.isArray(item) ? item[1] : item.itemName;
+                  const buyLink = Array.isArray(item) ? item[2] : item.buyLink;
+
+                  return (
+                    <li key={index}>
+                      {quantity} {itemName}
+                      {buyLink ? (
+                        <>
+                          {" "}
+                          <a className="buyLinkButton" href={buyLink} target="_blank" rel="noreferrer">Buy</a>
+                        </>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
+          {projectInfo.buildfilesurl ? (
+            <div className="buildFilesBlock">
+              <h2>Build Files</h2>
+              <a href={projectInfo.buildfilesurl} target="_blank" rel="noreferrer">
+                Open project build files
+              </a>
+            </div>
+          ) : null}
         </div>
       </div>
 

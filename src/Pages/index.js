@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Link } from "react-router-dom";
 import index from "./Text/index.txt"
 
 export default function Home(){
@@ -26,8 +27,27 @@ const [indexText, setText] = useState ('');
                 <h1>Welcome to the BETA page for the A2 Makerspace!</h1> 
                 <br/>
                 <p>{indexText}</p>
-                <div class="about-button-container">
-                  <button class="about-button" onclick="aboutLink()">Learn More</button>
+                <div className="visitor-guidance">
+                  <h2>First time here?</h2>
+                  <p>Choose a path below to get started.</p>
+                  <div className="visitor-guidance-grid">
+                    <Link className="visitor-guidance-card" to="/projects">
+                      <h3>Looking for inspiration?</h3>
+                      <p>Browse maker projects, filter by tags, and see what others have built.</p>
+                    </Link>
+                    <Link className="visitor-guidance-card" to="/makers">
+                      <h3>Are you a teacher or mentor?</h3>
+                      <p>Meet makers and find examples you can bring into a classroom, workshop, or event.</p>
+                    </Link>
+                    <Link className="visitor-guidance-card" to="/signUp">
+                      <h3>Ready to share a project?</h3>
+                      <p>Create an account and upload your own design, supplies, photos, and videos.</p>
+                    </Link>
+                    <Link className="visitor-guidance-card" to="/about">
+                      <h3>Want to learn more?</h3>
+                      <p>Read about the purpose of the A2 Makerspace and how this community works.</p>
+                    </Link>
+                  </div>
                 </div>
               </div>
               <div>

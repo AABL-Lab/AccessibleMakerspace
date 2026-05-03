@@ -6,7 +6,7 @@ const multer = require('multer');
 // const fs = require('fs')
 // const { Client, Connection } = require('pg');
 const {connect, tags, setGlobalTags, getGlobalTags, validateUser, filter_content} = require('./server');
-const {getProjects, getProjectID, createProject, editProject, deleteProject} = require('./projects');
+const {getProjects, getProjectID, createProject, editProject, deleteProject, getProjectImages, updateProjectImages} = require('./projects');
 const users = require('./users.js');
 const comments = require('./comments.js')
 const server = require('./server.js')
@@ -54,6 +54,7 @@ async function uploadImage(images, altTexts, projID){
   console.log(typeof(images));
   
   try {
+    let uploadedImages = [];
     for (let i = 0; i < images.length; i++) {
       const file = images[i];
       const altText = altTexts && altTexts[i] ? altTexts[i] : "";
@@ -61,13 +62,17 @@ async function uploadImage(images, altTexts, projID){
         folder: projID, 
         context: `alt=${altText}`
       });
+      uploadedImages.push({
+        url: uploadedImage.secure_url,
+        alt: altText || "Project Image"
+      });
     }
 
     console.log("image sent");
-    return true;
+    return uploadedImages;
   }catch (error) {
     console.error('Error:', error);
-    return false;
+    return [];
   }
 }
 
@@ -124,8 +129,8 @@ app.post('/api/uploadImage', mult.array('images'), async (req, res) => {
       if (typeof altTexts == 'string') altTexts = [altTexts];
       if (!altTexts) altTexts = [];
     
-      // Pass to helper
-      uploadImage(images, altTexts, "id" + projid);
+      const uploadedImages = await uploadImage(images, altTexts, "id" + projid);
+      await updateProjectImages(connection, Number(projid), uploadedImages);
       res.send(true)
     }
   
@@ -178,7 +183,8 @@ app.post('/api/replaceImages', mult.array('images'), async (req, res) => {
       if (typeof altTexts == 'string') altTexts = [altTexts];
       if (!altTexts) altTexts = [];
 
-      await uploadImage(images, altTexts, folderName);
+      const uploadedImages = await uploadImage(images, altTexts, folderName);
+      await updateProjectImages(connection, Number(projid), uploadedImages);
       
       res.send(true);
     } else {
@@ -191,15 +197,25 @@ app.post('/api/replaceImages', mult.array('images'), async (req, res) => {
   }
 });
 
-// Recieving request from user and send back the image urls from Cloudinary 
+// Recieving request from user and send back the image urls saved in the database
 app.post('/api/data', async (req, res) => {
-  console.log("Cloudinary API Recieved");
+  console.log("Project Image API Recieved");
   try {
     const requestData = req.body.id;
     console.log("Request Generated, Request Data: " + requestData);
-    const searchResult = await searchByFolder(requestData);
-    console.log("Search Complete, Results: " + searchResult);
-    res.send(searchResult);
+    const projid = Number(String(requestData).replace(/\D/g, ''));
+    let imageResults = await getProjectImages(connection, projid);
+
+    // Cloudinary fallback is disabled to avoid rate-limit issues during browsing.
+    // if (imageResults.length == 0) {
+    //   imageResults = await searchByFolder(requestData);
+    //   if (imageResults.length > 0) {
+    //     await updateProjectImages(connection, projid, imageResults);
+    //   }
+    // }
+
+    console.log("Image Results: " + imageResults);
+    res.send(imageResults);
     console.log("Sent Results");
   }catch (error) {
     res.status(500).json({ error: error.message });
@@ -248,11 +264,14 @@ app.post('/api/signUp', async (req, res) => {
     if (result == "YAY!!!"){
       res.send("1");
     }
-    else if (result = "User already exists"){
-      res.send(result);
+    else if (result == "User already exists"){
+      res.send("2");
     }
     else if (result == "sad"){
       throw("Something Broke")
+    }
+    else {
+      res.send(result);
     }
   }
   catch (error){
@@ -269,6 +288,7 @@ app.post('/api/createProject', async (req, res) => {
     let supplies = undefined;
     let skills = undefined;
     let tags = undefined;
+    let buildFilesURL = undefined;
 
     // console.log("Request Body: " + JSON.stringify(req.body));
     // console.log(req.body.tags)
@@ -282,8 +302,12 @@ app.post('/api/createProject', async (req, res) => {
     }catch(error){aslURL = undefined}
 
     try{
+      buildFilesURL = req.body.buildFilesURL
+    }catch(error){buildFilesURL = undefined}
+
+    try{
       // console.log("Supplies")
-      supplies = req.body.supplies.map(supply => supply.quantity + '_' + supply.itemName)
+      supplies = req.body.supplies
       console.log(supplies)
     }catch(error){supplies = undefined}
 
@@ -305,7 +329,7 @@ app.post('/api/createProject', async (req, res) => {
     
     // console.log("Hello")
     // async function createProject(client, userName, password, title, description, videoURL, aslURL, supplies, skills, tags){ 
-    result = await createProject(connection, req.body.userName, req.body.password, req.body.title, req.body.description, videoURL, aslURL, supplies, skills, tags)
+    result = await createProject(connection, req.body.userName, req.body.password, req.body.title, req.body.description, videoURL, aslURL, supplies, skills, tags, buildFilesURL)
     // globalTags = await setGlobalTags();
     // result = parseInt(result)
     res.send(String(result))
@@ -355,6 +379,7 @@ app.post("/api/editProject", async(req, res) => {
     let supplies = undefined;
     let skills = undefined;
     let tags = undefined;
+    let buildFilesURL = undefined;
 
     // console.log("Request Body: " + JSON.stringify(req.body));
     // console.log(req.body.tags)
@@ -376,8 +401,12 @@ app.post("/api/editProject", async(req, res) => {
     }catch(error){aslURL = undefined}
 
     try{
+      buildFilesURL = req.body.buildFilesURL
+    }catch(error){buildFilesURL = undefined}
+
+    try{
       console.log("Supplies")
-      supplies = req.body.supplies.map(supply => supply.quantity + '_' + supply.itemName)
+      supplies = req.body.supplies
       console.log(supplies)
     }catch(error){supplies = undefined}
 
@@ -394,7 +423,7 @@ app.post("/api/editProject", async(req, res) => {
       // console.log("Project Upload Tags Error: " + error)
       tags = undefined}
     // async function editProject(client, username, password, projID, title, description, videoURL, aslURL, supplies, skills, tags){
-    let result = await editProject(connection, req.body.username, req.body.password, req.body.projid, title, description, videoURL, aslURL, supplies, skills, tags);
+    let result = await editProject(connection, req.body.username, req.body.password, req.body.projid, title, description, videoURL, aslURL, supplies, skills, tags, buildFilesURL);
     console.log("editing proj results:",result);
     res.send(result);
   }

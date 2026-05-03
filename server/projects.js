@@ -8,6 +8,110 @@ const cloudinary = require('./cloudinary');
 let {connect, filter_content, validateUser, getUserID, cleanId, listToString, stringToList, stringToSpacedString, updateGlobalTags, setGlobalTags, globalTags, getGlobalTags} = require('./server');
 // const { query } = require('express');
 
+function normalizeProjectImages(images){
+  if (!Array.isArray(images)){
+    return [];
+  }
+
+  return images
+    .filter(image => image && image.url)
+    .map(image => ({
+      url: image.url,
+      alt: image.alt || "Project Image"
+    }));
+}
+
+function projectImagesToDb(images){
+  return filter_content(JSON.stringify(normalizeProjectImages(images)));
+}
+
+function projectImagesFromDb(projectImages){
+  if (typeof projectImages != 'string' || projectImages.length == 0){
+    return [];
+  }
+
+  try {
+    return normalizeProjectImages(JSON.parse(projectImages));
+  }
+  catch (error){
+    console.log("Project Images Parse Error: " + error);
+    return [];
+  }
+}
+
+function normalizeSupply(supply){
+  if (Array.isArray(supply)){
+    return {
+      quantity: supply[0] || "",
+      itemName: supply[1] || "",
+      buyLink: supply[2] || ""
+    };
+  }
+
+  if (typeof supply == 'object' && supply != null){
+    return {
+      quantity: supply.quantity || "",
+      itemName: supply.itemName || supply.name || "",
+      buyLink: supply.buyLink || supply.link || supply.url || ""
+    };
+  }
+
+  if (typeof supply == 'string'){
+    const parts = supply.split('_');
+    return {
+      quantity: parts[0] || "",
+      itemName: parts[1] || "",
+      buyLink: parts.slice(2).join('_') || ""
+    };
+  }
+
+  return {
+    quantity: "",
+    itemName: "",
+    buyLink: ""
+  };
+}
+
+function normalizeSupplies(supplies){
+  if (!Array.isArray(supplies)){
+    return [];
+  }
+
+  return supplies
+    .map(normalizeSupply)
+    .filter(supply => supply.quantity !== "" || supply.itemName !== "" || supply.buyLink !== "");
+}
+
+function suppliesToLegacyDb(supplies){
+  return listToString(normalizeSupplies(supplies).map(supply => supply.quantity + '_' + supply.itemName));
+}
+
+function suppliesToJsonDb(supplies){
+  return filter_content(JSON.stringify(normalizeSupplies(supplies)));
+}
+
+function suppliesFromJsonDb(suppliesJson){
+  if (typeof suppliesJson != 'string' || suppliesJson.length == 0){
+    return [];
+  }
+
+  try {
+    return normalizeSupplies(JSON.parse(suppliesJson));
+  }
+  catch(error){
+    console.log("Supplies JSON Parse Error: " + error);
+    return [];
+  }
+}
+
+function suppliesFromLegacyDb(supplies){
+  if (typeof supplies != 'string' || supplies.length == 0){
+    return [];
+  }
+
+  return normalizeSupplies(stringToList(supplies));
+}
+
 // This function gets all the projects
 async function getProjects(client){
     console.log("Getting All Projects");
@@ -63,9 +167,16 @@ async function getProjects(client){
     
       console.log("Finished getProj");
     
-      if (results.rows[0].supplies != null){
+      if (results.rows[0].suppliesjson != null){
+        results.rows[0].supplies = suppliesFromJsonDb(results.rows[0].suppliesjson);
+      }
+      else if (results.rows[0].supplies != null){
         // console.log(results.rows[0].supplies)
-        results.rows[0].supplies = stringToList(results.rows[0].supplies);
+        results.rows[0].supplies = suppliesFromLegacyDb(results.rows[0].supplies);
+      }
+
+      if (results.rows[0].projectimages != null){
+        results.rows[0].projectimages = projectImagesFromDb(results.rows[0].projectimages);
       }
 
       console.log(results.rows[0].supplies);
@@ -155,7 +266,7 @@ async function getProjects(client){
   }
 
 // The function creates a project
-  async function createProject(client, userName, password, title, description, videoURL, aslURL,  supplies, skills, tags){
+  async function createProject(client, userName, password, title, description, videoURL, aslURL,  supplies, skills, tags, buildFilesURL){
     console.log("Creating project from user: " + userName);
     try{
         if (typeof userName != 'string') throw("Username Not Valid");
@@ -202,9 +313,16 @@ async function getProjects(client){
           createProjectQuery2 += ", '" + filter_content(aslURL) + "'";
         }
 
+        if (buildFilesURL != undefined){
+          createProjectQuery1 += ", buildfilesurl";
+          createProjectQuery2 += ", '" + filter_content(buildFilesURL) + "'";
+        }
+
         if (supplies != undefined){
           createProjectQuery1 += ", supplies";
-          createProjectQuery2 += ", '" + listToString(supplies) + "'";
+          createProjectQuery2 += ", '" + suppliesToLegacyDb(supplies) + "'";
+          createProjectQuery1 += ", suppliesjson";
+          createProjectQuery2 += ", '" + suppliesToJsonDb(supplies) + "'";
         }
 
         if (skills != undefined){
@@ -247,7 +365,7 @@ async function getProjects(client){
   }
 
 // This function edits a project
-  async function editProject(client, username, password, projID, title, description, videoURL, aslURL, supplies, skills, tags){
+  async function editProject(client, username, password, projID, title, description, videoURL, aslURL, supplies, skills, tags, buildFilesURL){
     try {
       if (typeof client != 'object') {throw ("Client Invalid type")}
       if (typeof username !=  'string') {throw ("Username Type Invalid")}
@@ -258,6 +376,7 @@ async function getProjects(client){
       if (description != undefined && typeof description != 'string') {throw("Description Type Invalid")}
       if (videoURL != undefined && typeof videoURL != 'string') {throw("Video URL type invalid")}
       if (aslURL != undefined && typeof aslURL != 'string') {throw("ASL URL Type Invalid")}
+      if (buildFilesURL != undefined && typeof buildFilesURL != 'string') {throw("Build Files URL Type Invalid")}
       // console.log("Sphere " + supplies + " " + typeof supplies);
       if (supplies != undefined && !Array.isArray(supplies)) {throw("Supplies Type Invalid")}
       // console.log("Sphere " + skills + " " + typeof skills);
@@ -302,10 +421,19 @@ async function getProjects(client){
           }
         }
 
-        if (supplies != undefined){
-          let query ="UPDATE projects SET supplies = '" + listToString(supplies) + "' WHERE projid = " + projID + " RETURNING supplies"
+        if (buildFilesURL != undefined){
+          let query = "UPDATE projects SET buildfilesurl = '" + filter_content(buildFilesURL) + "' WHERE projid = " + projID + " RETURNING buildfilesurl"
           let result = await client.query(query)
-          if (result.rows[0].supplies != listToString(supplies)){
+          if (result.rows[0].buildfilesurl != buildFilesURL){
+            throw("Build Files URL Not Changed")
+          }
+        }
+
+        if (supplies != undefined){
+          let legacySupplies = suppliesToLegacyDb(supplies);
+          let query ="UPDATE projects SET supplies = '" + legacySupplies + "', suppliesjson = '" + suppliesToJsonDb(supplies) + "' WHERE projid = " + projID + " RETURNING supplies"
+          let result = await client.query(query)
+          if (result.rows[0].supplies != legacySupplies){
             throw("Supplies Not Changed")
           }
         }
@@ -338,6 +466,35 @@ async function getProjects(client){
     catch(error){
       console.log("Edit Project Error: " + error)
       return error
+    }
+  }
+
+  async function getProjectImages(client, projID){
+    try {
+      let result = await client.query("SELECT projectimages FROM projects WHERE projid = " + cleanId(String(projID)));
+      if (result.rows.length == 0){
+        return [];
+      }
+
+      return projectImagesFromDb(result.rows[0].projectimages);
+    }
+    catch(error){
+      console.log("Get Project Images Error: " + error);
+      return [];
+    }
+  }
+
+  async function updateProjectImages(client, projID, images){
+    try {
+      if (typeof projID != 'number') {throw("ProjID Type Invalid")}
+      const projectImages = projectImagesToDb(images);
+      let query = "UPDATE projects SET projectimages = '" + projectImages + "' WHERE projid = " + projID + " RETURNING projectimages";
+      let result = await client.query(query);
+      return projectImagesFromDb(result.rows[0].projectimages);
+    }
+    catch(error){
+      console.log("Update Project Images Error: " + error);
+      return error;
     }
   }
 
@@ -501,4 +658,4 @@ async function getProjects(client){
 
   // main();
 
-module.exports = {getProjects, getProjectID, createProject, editProject, deleteProject};
+module.exports = {getProjects, getProjectID, createProject, editProject, deleteProject, getProjectImages, updateProjectImages, projectImagesFromDb, projectImagesToDb, normalizeSupplies, suppliesToJsonDb};

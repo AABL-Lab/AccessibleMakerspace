@@ -63,7 +63,8 @@
   padding: 5px 0 5px 0;
 }
 
-.form input[type="text"]{
+.form input[type="text"],
+.form input[type="email"]{
   height: 44px;
   width: 100%;
 }

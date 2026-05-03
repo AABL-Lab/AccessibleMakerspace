@@ -54,6 +54,50 @@
   
 }
 
+.projectGroups {
+  padding: 20px;
+}
+
+.projectTagFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 25px 25px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-bottom: 4px;
+}
+
+.projectTagFilterButton {
+  background-color: white;
+  border: 1px solid #1434a4;
+  border-radius: 20px;
+  color: #1434a4;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 8px 16px;
+}
+
+.projectTagFilterButton:hover,
+.projectTagFilterButton.active {
+  background-color: #1434a4;
+  color: white;
+}
+
+.projectTagToggleButton {
+  border-style: dashed;
+  font-weight: bold;
+}
+
+.projectGroup {
+  margin-bottom: 40px;
+}
+
+.projectGroupTitle {
+  color: #1434a4;
+  margin-left: 25px;
+}
+
 .userCardLayout{
   display: grid;
   grid-template-columns: auto auto auto;
@@ -98,6 +142,37 @@
 .bio {
   margin: 0; /* Reset margin */
   padding: 0; /* Reset padding */
+}
+
+.projectCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-top: auto;
+  max-height: 54px;
+  overflow: hidden;
+  padding-top: 10px;
+}
+
+.projectCardTag {
+  background-color: rgb(216, 216, 249);
+  border: 1px solid rgba(20, 52, 164, 0.35);
+  border-radius: 16px;
+  color: #1434a4;
+  font-size: 14px;
+  font-weight: 600;
+  max-width: 120px;
+  overflow: hidden;
+  padding: 4px 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.projectCardTagMore {
+  background-color: #1434a4;
+  color: white;
+  max-width: none;
 }
 
 

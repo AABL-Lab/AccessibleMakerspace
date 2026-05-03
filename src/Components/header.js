@@ -35,7 +35,7 @@ export default function Header() {
     <header aria-labelledby="related-nav-heading" role="banner">
       <div className="left-container">
         <div className="logo">
-          <a href="/">
+          <a href="/" className="home-logo-link" aria-label="Go to home page">
             <img src="images/logo.png" alt="Website Logo" />
           </a>
         </div>
