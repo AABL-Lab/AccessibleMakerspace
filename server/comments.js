@@ -134,7 +134,7 @@ async function getProjectComments(client, projID) {
     if (typeof client != 'object') { throw ("Client Invalid Type") }
 
     let query = `
-      SELECT comments.*, users.username 
+      SELECT comments.*, users.username, users.profilepicurl 
       FROM comments 
       JOIN users ON comments.userid = users.userid 
       WHERE comments.projid = ${projID}

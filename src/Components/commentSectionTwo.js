@@ -68,6 +68,7 @@ export default function CommentSection({ projID }) {
             id: comments.length + 1, 
             user: username,
             message: message,
+            profilepicurl: sessionStorage.getItem('profilepicurl') || "",
             replies: [], 
             showReplyBox: false 
         };
@@ -126,6 +127,7 @@ export default function CommentSection({ projID }) {
                                 id: Date.now(), // Temporary unique ID
                                 username: username,
                                 message: replyMessage,
+                                profilepicurl: sessionStorage.getItem('profilepicurl') || "",
                                 showReplyBox: false
                             }
                         ],
@@ -155,6 +157,11 @@ export default function CommentSection({ projID }) {
                 
                 <div className="reply-message">
                     <p>{reply.message || reply.content}</p>
+                    <img
+                        src={reply.profilepicurl || "images/robot_new.jpg"}
+                        alt={`${reply.username || "User"} profile`}
+                        className="profile-picture"
+                    />
                 </div>
                 
                 <div className="like-reply-section">
@@ -208,7 +215,11 @@ export default function CommentSection({ projID }) {
                         <div className="comment-body">
                             <div className="comment-message">
                                 <p className="message-text">{comment.message || comment.content}</p>
-                                <img src={"./images/robot_new.jpg"} alt="Profile" className="profile-picture" />
+                                <img
+                                    src={comment.profilepicurl || "images/robot_new.jpg"}
+                                    alt={`${comment.user || comment.username || "User"} profile`}
+                                    className="profile-picture"
+                                />
                             </div>
                         </div>
 
